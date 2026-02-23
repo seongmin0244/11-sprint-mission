@@ -25,7 +25,11 @@ public class JCFUserService implements UserService{
 
     @Override
     public User findById(UUID id) {
-        return data.get(id);
+        User user = data.get(id);
+        if (user == null) {
+            throw new IllegalArgumentException("[user] 없는 id 입니다.");
+        }
+        return user;
     }
 
     @Override
@@ -43,8 +47,8 @@ public class JCFUserService implements UserService{
     }
 
     @Override
-    public User delete(UUID id) {
+    public void delete(UUID id) {
+        findById(id);
         data.remove(id);
-        return data.get(id);
     }
 }

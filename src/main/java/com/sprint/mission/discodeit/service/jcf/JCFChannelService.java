@@ -35,7 +35,11 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel findById(UUID id) {
-        return data.get(id);
+        Channel channel = data.get(id);
+        if (channel == null) {
+            throw new IllegalArgumentException("[channel] 없는 id 입니다.");
+        }
+        return channel;
     }
 
     @Override
@@ -60,8 +64,8 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel delete(UUID id) {
+    public void delete(UUID id) {
+        findById(id);
         data.remove(id);
-        return data.get(id);
     }
 }

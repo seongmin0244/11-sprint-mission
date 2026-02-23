@@ -41,7 +41,7 @@ public class JCFMessageService implements MessageService{
         return data.stream()
                 .filter(m -> m.getId().equals(id))
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("없는 id 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("[message] 없는 id 입니다."));
     }
 
     @Override
@@ -52,8 +52,8 @@ public class JCFMessageService implements MessageService{
     }
 
     @Override
-    public Message delete(UUID id) {
-        data.removeIf(m -> m.getId().equals(id));
-        return findById(id);
+    public void delete(UUID id) {
+        Message message = findById(id);
+        data.remove(message);
     }
 }

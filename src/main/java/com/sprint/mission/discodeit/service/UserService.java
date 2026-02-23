@@ -11,5 +11,5 @@ public interface UserService {
     User findById(UUID id);
     User updateName(UUID id, String name);
     User updateStatus(UUID id, String status);
-    User delete(UUID id);
+    void delete(UUID id);
 }
