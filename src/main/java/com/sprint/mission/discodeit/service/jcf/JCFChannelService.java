@@ -10,8 +10,8 @@ public class JCFChannelService implements ChannelService {
 
     private final Map<UUID, Channel> data;
 
-    public JCFChannelService(Map<UUID, Channel> data) {
-        this.data = data;
+    public JCFChannelService() {
+        this.data = new HashMap<>();
     }
 
     @Override

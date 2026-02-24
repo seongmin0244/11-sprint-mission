@@ -8,8 +8,8 @@ import java.util.*;
 public class JCFUserService implements UserService{
     private final Map<UUID, User> data;
 
-    public JCFUserService(Map<UUID, User> data) {
-        this.data = data;
+    public JCFUserService() {
+        this.data = new HashMap<>();
     }
 
     @Override

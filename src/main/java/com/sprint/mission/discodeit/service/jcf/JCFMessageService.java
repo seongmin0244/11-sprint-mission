@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,9 +14,13 @@ import java.util.stream.Collectors;
 public class JCFMessageService implements MessageService{
 
     private final List<Message> data;
+    private final JCFUserService userService;
+    private final JCFChannelService channelService;
 
-    public JCFMessageService(List<Message> data) {
-        this.data = data;
+    public JCFMessageService(JCFUserService userService, JCFChannelService channelService) {
+        this.data = new ArrayList<>();
+        this.userService = userService;
+        this.channelService = channelService;
     }
 
     @Override
