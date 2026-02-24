@@ -7,9 +7,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class JCFMessageService implements MessageService{
 
@@ -25,20 +23,25 @@ public class JCFMessageService implements MessageService{
 
     @Override
     public Message create(Message message) {
+        getUserName(message.getUserId());
+        getChannelName(message.getChannelId());
+
         data.add(message);
         return message;
     }
 
     @Override
-    public Map<String, List<Message>> getAllMessage() {
+    public List<String> getAllMessage() {
         return data.stream()
-                .collect(Collectors.groupingBy(Message::getChannelName));
+                .map(this::printMessage)
+                .toList();
     }
 
     @Override
-    public List<Message> getMessageByChannel(String channelId) {
+    public List<String> getMessageByChannel(UUID channelId) {
         return data.stream()
-                .filter(m -> m.getChannelName().equals(channelId))
+                .filter(m -> m.getChannelId().equals(channelId))
+                .map(this::printMessage)
                 .toList();
 
     }
@@ -52,10 +55,22 @@ public class JCFMessageService implements MessageService{
     }
 
     @Override
-    public Message updateContent(UUID id, String content) {
+    public String getUserName(UUID userId) {
+        User user = userService.findById(userId);
+        return user.getName();
+    }
+
+    @Override
+    public String getChannelName(UUID channelId) {
+        Channel channel = channelService.findById(channelId);
+        return channel.getName();
+    }
+
+    @Override
+    public String updateContent(UUID id, String content) {
         Message message = findById(id);
         message.updateContent(content);
-        return message;
+        return printMessage(message);
     }
 
     @Override
@@ -63,4 +78,15 @@ public class JCFMessageService implements MessageService{
         Message message = findById(id);
         data.remove(message);
     }
+
+    @Override
+    public String printMessage(Message message) {
+        return "Message{" +
+                "userName='" + getUserName(message.getUserId()) + '\'' +
+                ", channelId='" + getChannelName(message.getChannelId()) + '\'' +
+                ", content='" + message.getContent() + '\'' +
+        "}";
+    }
+
+
 }
