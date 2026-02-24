@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.service.MessageService;
+
 import java.util.UUID;
 
 public class Message {
@@ -7,18 +9,18 @@ public class Message {
     private Long createdAt;
     private Long updatedAt;
 
+    private UUID userId;
+    private UUID channelId;
     private String content;
-    private String authorName;
-    private String channelName;
 
-    public Message(String content, String authorName, String channelName) {
+    public Message(UUID userId, UUID channelId, String content) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
 
+        this.userId = userId;
+        this.channelId = channelId;
         this.content = content;
-        this.authorName = authorName;
-        this.channelName = channelName;
     }
 
     public UUID getId() {
@@ -33,16 +35,16 @@ public class Message {
         return updatedAt;
     }
 
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
     public String getContent() {
         return content;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public String getChannelName() {
-        return channelName;
     }
 
     public void updateContent(String content) {
@@ -54,8 +56,8 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "content='" + content + '\'' +
-                ", authorName='" + authorName + '\'' +
-                ", channelName='" + channelName + '\'' +
+                ", userName='" + userId + '\'' +
+                ", channelId='" + channelId + '\'' +
                 "}";
     }
 }
