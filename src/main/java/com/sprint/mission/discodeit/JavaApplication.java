@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
@@ -11,12 +12,13 @@ import java.util.*;
 
 public class JavaApplication {
     public static void main(String[] args) {
-        ;
-        JCFUserService userService = new JCFUserService();
+
+        //JCFUserService userService = new JCFUserService();
+        FileUserService userService = new FileUserService();
 
         JCFChannelService channelService = new JCFChannelService();
 
-        JCFMessageService messageService = new JCFMessageService(userService, channelService);
+        //JCFMessageService messageService = new JCFMessageService(userService, channelService);
 
         // User
         System.out.println();
@@ -100,7 +102,7 @@ public class JavaApplication {
         System.out.println("=== 삭제를 확인하기 위해 모든 채널을 출력합니다. ===");
         System.out.println(channelService.getAllChannel());
 
-        // Message
+/*        // Message
         System.out.println();
         System.out.println("-------------------- 3. Message 서비스 테스트 --------------------");
 
@@ -133,6 +135,6 @@ public class JavaApplication {
 
         System.out.println();
         System.out.println("=== 삭제를 확인하기 위해 모든 메시지를 출력합니다. ===");
-        System.out.println(messageService.getAllMessage());
+        System.out.println(messageService.getAllMessage());*/
     }
 }
