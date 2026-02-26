@@ -3,26 +3,23 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.*;
 
 public class JavaApplication {
     public static void main(String[] args) {
 
-        //JCFUserService userService = new JCFUserService();
-        FileUserService userService = new FileUserService();
+        // 인터페이스 다형성 응용
+        UserService userService = new FileUserService();
+        ChannelService channelService = new FileChannelService();
+        MessageService messageService = new FileMessageService(userService, channelService);
 
-        //JCFChannelService channelService = new JCFChannelService();
-        FileChannelService channelService = new FileChannelService();
-
-        //JCFMessageService messageService = new JCFMessageService(userService, channelService);
-        FileMessageService messageService = new FileMessageService(userService, channelService);
 
         // User
         System.out.println();

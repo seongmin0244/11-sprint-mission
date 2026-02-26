@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,10 +16,10 @@ public class FileMessageService implements MessageService {
 
     private static final String FILE_PATH = "message.ser";
 
-    private final FileUserService userService;
-    private final FileChannelService channelService;
+    private final UserService userService;
+    private final ChannelService channelService;
 
-    public FileMessageService(FileUserService userService, FileChannelService channelService) {
+    public FileMessageService(UserService userService, ChannelService channelService) {
         this.userService = userService;
         this.channelService = channelService;
     }
