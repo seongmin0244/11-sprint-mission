@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
@@ -21,6 +22,7 @@ public class JavaApplication {
         FileChannelService channelService = new FileChannelService();
 
         //JCFMessageService messageService = new JCFMessageService(userService, channelService);
+        FileMessageService messageService = new FileMessageService(userService, channelService);
 
         // User
         System.out.println();
@@ -51,7 +53,8 @@ public class JavaApplication {
         System.out.println(userService.updateName(u1.getId(), "라이츄"));
 
         System.out.println();
-        System.out.println("=== [" + u1.getName() + "] 님이 상태를 변경했습니다. ===");
+        //System.out.println("=== [" + u1.getName() + "] 님이 상태를 변경했습니다. ===");
+        System.out.println("=== [" + messageService.getUserName(u1.getId()) + "] 님이 상태를 변경했습니다. ===");
         System.out.println(userService.updateStatus(u1.getId(), "오프라인"));
 
         System.out.println();
@@ -89,22 +92,25 @@ public class JavaApplication {
         System.out.println(channelService.updateName(c1.getId(), "학습-공지방"));
 
         System.out.println();
-        System.out.println("=== [" + c1.getName() + "]의 설명을 변경합니다. ===");
+        //System.out.println("=== [" + c1.getName() + "]의 설명을 변경합니다. ===");
+        System.out.println("=== [" + messageService.getChannelName(c1.getId()) + "]의 설명을 변경합니다. ===");
         System.out.println(channelService.updateDescription(c1.getId(), "학습 관련 공지를 올리는 방입니다."));
 
         System.out.println();
-        System.out.println("=== [" + c1.getName() + "]의 타입을 변경합니다. ===");
+        //System.out.println("=== [" + c1.getName() + "]의 타입을 변경합니다. ===");
+        System.out.println("=== [" + messageService.getChannelName(c1.getId()) + "]의 타입을 변경합니다. ===");
         System.out.println(channelService.updateType(c1.getId(), "음성방"));
 
         System.out.println();
-        System.out.println("=== [" + c1.getName() + "]을 삭제합니다. ===");
+        //System.out.println("=== [" + c1.getName() + "]을 삭제합니다. ===");
+        System.out.println("=== [" + messageService.getChannelName(c1.getId()) + "]을 삭제합니다. ===");
         channelService.delete(c1.getId());
 
         System.out.println();
         System.out.println("=== 삭제를 확인하기 위해 모든 채널을 출력합니다. ===");
         System.out.println(channelService.getAllChannel());
 
-/*        // Message
+        // Message
         System.out.println();
         System.out.println("-------------------- 3. Message 서비스 테스트 --------------------");
 
@@ -137,6 +143,6 @@ public class JavaApplication {
 
         System.out.println();
         System.out.println("=== 삭제를 확인하기 위해 모든 메시지를 출력합니다. ===");
-        System.out.println(messageService.getAllMessage());*/
+        System.out.println(messageService.getAllMessage());
     }
 }
