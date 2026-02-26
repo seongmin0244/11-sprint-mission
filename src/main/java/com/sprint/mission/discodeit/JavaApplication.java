@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
@@ -16,7 +17,8 @@ public class JavaApplication {
         //JCFUserService userService = new JCFUserService();
         FileUserService userService = new FileUserService();
 
-        JCFChannelService channelService = new JCFChannelService();
+        //JCFChannelService channelService = new JCFChannelService();
+        FileChannelService channelService = new FileChannelService();
 
         //JCFMessageService messageService = new JCFMessageService(userService, channelService);
 
