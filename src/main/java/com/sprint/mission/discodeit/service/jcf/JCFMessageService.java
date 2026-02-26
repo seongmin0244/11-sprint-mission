@@ -23,7 +23,6 @@ public class JCFMessageService implements MessageService{
 
     @Override
     public Message create(Message message) {
-        // 예외처리
         getUserName(message.getUserId());
         getChannelName(message.getChannelId());
 
