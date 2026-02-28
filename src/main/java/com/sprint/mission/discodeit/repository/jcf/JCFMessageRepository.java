@@ -17,7 +17,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public Message save(Message message) {
-        // 처리
+        data.removeIf(m -> m.getId().equals(message.getId()));
         data.add(message);
         return message;
     }
