@@ -18,11 +18,48 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-import com.sprint.mission.discodeit.service.file.FileChannelService;
-import com.sprint.mission.discodeit.service.file.FileMessageService;
-import com.sprint.mission.discodeit.service.file.FileUserService;
 
-import java.util.*;
+
+/*public class JavaApplication {
+    static User setupUser(UserService userService) {
+        User user = userService.create(new User("woody", "온라인"));
+        return user;
+    }
+
+    static Channel setupChannel(ChannelService channelService) {
+        Channel channel = channelService.create(new Channel("공지", "공지 채널입니다.", "채팅방"));
+        return channel;
+    }
+
+    static void messageCreateTest(MessageService messageService, User author, Channel channel) {
+        Message message = messageService.create(new Message(author.getId(), channel.getId(), "안녕하세요."));
+        System.out.println("메시지 생성: " + message.getId());
+    }
+
+    public static void main(String[] args) {
+        // 서비스 초기화
+        // TODO Basic*Service 구현체를 초기화하세요.
+
+//        UserRepository userRepository = new JCFUserRepository();
+//        ChannelRepository channelRepository = new JCFChannelRepository();
+//        MessageRepository messageRepository = new JCFMessageRepository();
+//
+        UserRepository userRepository = new FileUserRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
+
+        UserService userService = new BasicUserService(userRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+
+
+        // 셋업
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+        // 테스트
+        messageCreateTest(messageService, user, channel);
+    }
+}*/
 
 public class JavaApplication {
     public static void main(String[] args) {
@@ -54,12 +91,10 @@ public class JavaApplication {
         User u1 = userService.create(new User("피카츄", "온라인"));
         User u2 = userService.create(new User("이브이", "온라인"));
         User u3 = userService.create(new User("파이리", "온라인"));
-        User u4 = userService.create(new User("꼬부기", "온라인"));
 
         System.out.println("새로운 유저: " + u1);
         System.out.println("새로운 유저: " + u2);
         System.out.println("새로운 유저: " + u3);
-        System.out.println("새로운 유저: " + u4);
 
         System.out.println();
         System.out.println("=== 전체 사용자 목록을 출력합니다. ===");
@@ -79,8 +114,8 @@ public class JavaApplication {
         System.out.println(userService.updateStatus(u1.getId(), "오프라인"));
 
         System.out.println();
-        System.out.println("=== [" + u4.getName() + "]님이 탈퇴를 요청했습니다. ===");
-        userService.delete(u4.getId());
+        System.out.println("=== [" + u3.getName() + "]님이 탈퇴를 요청했습니다. ===");
+        userService.delete(u3.getId());
 
         System.out.println();
         System.out.println("=== 전체 사용자 목록을 출력합니다. ===");
@@ -159,8 +194,8 @@ public class JavaApplication {
         System.out.println(messageService.updateContent(m1.getId(), "반갑습니다!"));
 
         System.out.println();
-        System.out.println("=== 작성자 [" + messageService.getUserName(m1.getUserId()) + "]님의 \"" + m1.getContent() + "\" 메시지를 삭제합니다. ===");
-        messageService.delete(m1.getId());
+        System.out.println("=== 작성자 [" + messageService.getUserName(m2.getUserId()) + "]님의 \"" + m2.getContent() + "\" 메시지를 삭제합니다. ===");
+        messageService.delete(m2.getId());
 
         System.out.println();
         System.out.println("=== 삭제를 확인하기 위해 모든 메시지를 출력합니다. ===");

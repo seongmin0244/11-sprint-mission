@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
 
-public class BasicUserService {
+public class BasicUserService implements UserService{
 
     private final UserRepository userRepository;
 
