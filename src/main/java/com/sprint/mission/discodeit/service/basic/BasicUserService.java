@@ -16,6 +16,11 @@ public class BasicUserService implements UserService{
     }
 
     public User create(User user) {
+        boolean flag = getAllUser().stream()
+                .anyMatch(u -> u.getName().equals(user.getName()));
+        if (flag) {
+            throw new IllegalArgumentException("이미 가입된 유저입니다.");
+        }
         return userRepository.save(user);
     }
 
@@ -30,6 +35,12 @@ public class BasicUserService implements UserService{
 
     public User updateName(UUID id, String name) {
         User user = userRepository.findById(id);
+        boolean flag = getAllUser().stream()
+                .filter(u -> !u.getId().equals(id))
+                .anyMatch(u -> u.getName().equals(name));
+        if (flag) {
+            throw new IllegalArgumentException("이미 가입된 닉네임입니다.");
+        }
         user.updateName(name);
         return userRepository.save(user);
     }
