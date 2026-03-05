@@ -23,6 +23,7 @@ public class BasicMessageService implements MessageService {
         this.channelRepository = channelRepository;
     }
 
+    @Override
     public Message create(Message message) {
         // 이미 있는 유저와 채널인지 확인 후 저장
         getUserName(message.getUserId());
@@ -30,12 +31,14 @@ public class BasicMessageService implements MessageService {
         return messageRepository.save(message);
     }
 
+    @Override
     public List<String> getAllMessage() {
         return messageRepository.findAll().stream()
                 .map(this::printMessage)
                 .toList();
     }
 
+    @Override
     public List<String> getMessageByChannel(UUID channelId) {
         return messageRepository.findAll().stream()
                 .filter(m -> m.getChannelId().equals(channelId))
@@ -43,16 +46,24 @@ public class BasicMessageService implements MessageService {
                 .toList();
     }
 
+    @Override
+    public Message findById(UUID id) {
+        return messageRepository.findById(id);
+    }
+
+    @Override
     public String getUserName(UUID userId) {
         User user = userRepository.findById(userId);
         return user.getName();
     }
 
+    @Override
     public String getChannelName(UUID channelId) {
         Channel channel = channelRepository.findById(channelId);
         return channel.getName();
     }
 
+    @Override
     public String updateContent(UUID id, String content) {
         Message message = messageRepository.findById(id);
         message.updateContent(content);
@@ -60,10 +71,12 @@ public class BasicMessageService implements MessageService {
         return printMessage(message);
     }
 
+    @Override
     public void delete(UUID id) {
         messageRepository.delete(id);
     }
 
+    @Override
     public String printMessage(Message message) {
         return "Message{" +
                 "userName='" + getUserName(message.getUserId()) + '\'' +

@@ -15,6 +15,7 @@ public class BasicUserService implements UserService{
         this.userRepository = userRepository;
     }
 
+    @Override
     public User create(User user) {
         boolean flag = getAllUser().stream()
                 .anyMatch(u -> u.getName().equals(user.getName()));
@@ -24,15 +25,18 @@ public class BasicUserService implements UserService{
         return userRepository.save(user);
     }
 
+    @Override
     public List<User> getAllUser() {
         return userRepository.findAll().values().stream()
                 .toList();
     }
 
-    public User getUserById(UUID id) {
+    @Override
+    public User findById(UUID id) {
         return userRepository.findById(id);
     }
 
+    @Override
     public User updateName(UUID id, String name) {
         User user = userRepository.findById(id);
         boolean flag = getAllUser().stream()
@@ -45,12 +49,14 @@ public class BasicUserService implements UserService{
         return userRepository.save(user);
     }
 
+    @Override
     public User updateStatus(UUID id, String status) {
         User user = userRepository.findById(id);
         user.updateStatus(status);
         return userRepository.save(user);
     }
 
+    @Override
     public void delete(UUID id) {
         userRepository.delete(id);
     }

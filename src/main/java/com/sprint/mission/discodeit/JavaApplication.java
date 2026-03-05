@@ -102,7 +102,7 @@ public class JavaApplication {
 
         System.out.println();
         System.out.println("=== [" + u1.getName() + "] 님을 조회합니다. ===");
-        System.out.println(userService.getUserById(u1.getId()));
+        System.out.println(userService.findById(u1.getId()));
 
         System.out.println();
         System.out.println("=== [" + u1.getName() + "] 님이 이름을 변경했습니다. ===");
