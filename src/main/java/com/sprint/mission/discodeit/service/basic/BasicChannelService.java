@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
@@ -57,7 +58,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateType(UUID id, String type) {
+    public Channel updateType(UUID id, ChannelType type) {
         Channel channel = channelRepository.findById(id);
         channel.updateType(type);
         return channelRepository.save(channel);

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -64,22 +65,17 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 public class JavaApplication {
     public static void main(String[] args) {
 
-        // 인터페이스 다형성 응용
-//        UserService userService = new FileUserService();
-//        ChannelService channelService = new FileChannelService();
-//        MessageService messageService = new FileMessageService(userService, channelService);
+//        UserRepository userRepository = new FileUserRepository();
+//        ChannelRepository channelRepository = new FileChannelRepository();
+//        MessageRepository messageRepository = new FileMessageRepository();
 
-        UserRepository userRepository = new FileUserRepository();
-        ChannelRepository channelRepository = new FileChannelRepository();
-        MessageRepository messageRepository = new FileMessageRepository();
+        UserRepository userRepository = new JCFUserRepository();
+        ChannelRepository channelRepository = new JCFChannelRepository();
+        MessageRepository messageRepository = new JCFMessageRepository();
 
-//        UserRepository userRepository = new JCFUserRepository();
-//        ChannelRepository channelRepository = new JCFChannelRepository();
-//        MessageRepository messageRepository = new JCFMessageRepository();
-
-        BasicUserService userService = new BasicUserService(userRepository);
-        BasicChannelService channelService = new BasicChannelService(channelRepository);
-        BasicMessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+        UserService userService = new BasicUserService(userRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
 
 
         // User
@@ -127,9 +123,9 @@ public class JavaApplication {
 
         System.out.println();
         System.out.println("=== 새로운 채널이 생성되었습니다. ===");
-        Channel c1 = channelService.create(new Channel("행정-공지방", "행정 관련 공지를 올리는 방입니다.", "채팅방"));
-        Channel c2 = channelService.create(new Channel("음식-소통방", "주변의 맛집을 추천하는 방입니다.", "음성방"));
-        Channel c3 = channelService.create(new Channel("이벤트-공지방", "이벤트 공지를 방입니다.", "채팅방"));
+        Channel c1 = channelService.create(new Channel("행정-공지방", "행정 관련 공지를 올리는 방입니다.", ChannelType.TEXT));
+        Channel c2 = channelService.create(new Channel("음식-소통방", "주변의 맛집을 추천하는 방입니다.", ChannelType.VOICE));
+        Channel c3 = channelService.create(new Channel("이벤트-공지방", "이벤트 공지를 방입니다.", ChannelType.TEXT));
 
         System.out.println(c1);
         System.out.println(c2);
@@ -155,7 +151,7 @@ public class JavaApplication {
         System.out.println();
         //System.out.println("=== [" + c1.getName() + "]의 타입을 변경합니다. ===");
         System.out.println("=== [" + messageService.getChannelName(c1.getId()) + "]의 타입을 변경합니다. ===");
-        System.out.println(channelService.updateType(c1.getId(), "음성방"));
+        System.out.println(channelService.updateType(c1.getId(), ChannelType.VOICE));
 
         System.out.println();
         //System.out.println("=== [" + c1.getName() + "]을 삭제합니다. ===");

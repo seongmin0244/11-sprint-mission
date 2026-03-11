@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.io.*;
@@ -100,7 +101,7 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel updateType(UUID id, String type) {
+    public Channel updateType(UUID id, ChannelType type) {
         Map<UUID, Channel> data = load();
         if (data.get(id) == null) {
             throw new IllegalArgumentException("[channel] 없는 id 입니다.");

@@ -13,9 +13,9 @@ public class Channel implements Serializable {
 
     private String name;
     private String description;
-    private String type;
+    private ChannelType type;
 
-    public Channel(String name, String description, String type) {
+    public Channel(String name, String description, ChannelType type) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -45,7 +45,7 @@ public class Channel implements Serializable {
         return description;
     }
 
-    public String getType() {
+    public ChannelType getType() {
         return type;
     }
 
@@ -59,7 +59,7 @@ public class Channel implements Serializable {
         updatedAt = System.currentTimeMillis();
     }
 
-    public void updateType(String type) {
+    public void updateType(ChannelType type) {
         this.type = type;
         updatedAt = System.currentTimeMillis();
     }
