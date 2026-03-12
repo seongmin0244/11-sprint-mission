@@ -20,7 +20,9 @@ public class Message implements Serializable {
     private UUID channelId;
     private String content;
 
-    public Message(UUID userId, UUID channelId, String content) {
+    private UUID attachedImageId;
+
+    public Message(UUID userId, UUID channelId, String content, UUID attachedImageId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
@@ -28,6 +30,7 @@ public class Message implements Serializable {
         this.userId = userId;
         this.channelId = channelId;
         this.content = content;
+        this.attachedImageId = attachedImageId;
     }
 
     public void updateContent(String content) {

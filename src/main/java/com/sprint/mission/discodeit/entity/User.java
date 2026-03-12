@@ -16,15 +16,20 @@ public class User implements Serializable {
     private Instant updatedAt;
 
     private String name;
-    private String status;
+    private String email;
+    private String password;
 
-    public User(String name, String status) {
+    private UUID profileImageId;
+
+    public User(String name, String email, String password, UUID profileImageId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
 
         this.name = name;
-        this.status = status;
+        this.email = email;
+        this.password = password;
+        this.profileImageId = profileImageId;
     }
 
     public void updateName(String name) {
@@ -32,16 +37,17 @@ public class User implements Serializable {
         updatedAt = Instant.now();
     }
 
-    public void updateStatus(String status) {
-        this.status = status;
-        updatedAt = Instant.now();
-    }
+//    public void updateStatus(String status) {
+//        this.status = status;
+//        updatedAt = Instant.now();
+//    }
 
     @Override
     public String toString() {
         return "User{" +
                 "name='" + name + '\'' +
-                ", status='" + status + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 "}";
     }
 }

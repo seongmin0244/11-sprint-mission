@@ -35,9 +35,9 @@ public class DiscodeitApplication {
 
 		System.out.println();
 		System.out.println("=== 새로운 유저가 있습니다. ===");
-		User u1 = userService.create(new User("피카츄", "온라인"));
-		User u2 = userService.create(new User("이브이", "온라인"));
-		User u3 = userService.create(new User("파이리", "온라인"));
+		User u1 = userService.create(new User("피카츄", "pika@codeit.com", "poke1234!"));
+		User u2 = userService.create(new User("이브이", "eevee@codeit.com", "poke1234!"));
+		User u3 = userService.create(new User("파이리", "charmander@codeit.com", "poke1234!"));
 
 		System.out.println("새로운 유저: " + u1);
 		System.out.println("새로운 유저: " + u2);
@@ -57,7 +57,7 @@ public class DiscodeitApplication {
 
 		System.out.println();
 		System.out.println("=== [" + userService.findById(u1.getId()).getName() + "] 님이 상태를 변경했습니다. ===");
-		System.out.println(userService.updateStatus(u1.getId(), "오프라인"));
+		//System.out.println(userService.updateStatus(u1.getId(), "오프라인"));
 
 		System.out.println();
 		System.out.println("=== [" + u3.getName() + "]님이 탈퇴를 요청했습니다. ===");
@@ -147,7 +147,7 @@ public class DiscodeitApplication {
 	}
 
 	static User setupUser(UserService userService) {
-		User user = userService.create(new User("주리비얀", "온라인"));
+		User user = userService.create(new User("주리비얀", "snivy@codeit.com", "poke1234!"));
 		return user;
 	}
 

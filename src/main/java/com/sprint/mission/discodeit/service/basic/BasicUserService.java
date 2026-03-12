@@ -1,7 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.UserCreateDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,14 +19,29 @@ import java.util.UUID;
 public class BasicUserService implements UserService{
 
     private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final UserStatusRepository userStatusRepository;
 
     @Override
-    public User create(User user) {
-        boolean flag = getAllUser().stream()
-                .anyMatch(u -> u.getName().equals(user.getName()));
-        if (flag) {
+    public User create(UserCreateDto dto) {
+        boolean isDuplicated = getAllUser().stream()
+                .anyMatch(u -> u.getName().equals(dto.name()) || u.getEmail().equals(dto.email()));
+        if (isDuplicated) {
             throw new IllegalArgumentException("이미 가입된 유저입니다.");
         }
+
+        UUID profileImageId = null;
+        if (dto.profileImage() != null) {
+            BinaryContent image = new BinaryContent(dto.profileImage());
+            binaryContentRepository.save(image);
+            profileImageId = image.getId();
+        }
+
+        User user = new User(dto.name(), dto.email(), dto.password(), profileImageId);
+
+        UserStatus status = new UserStatus(user.getId());
+        userStatusRepository.save(status);
+
         return userRepository.save(user);
     }
 
@@ -49,12 +69,12 @@ public class BasicUserService implements UserService{
         return userRepository.save(user);
     }
 
-    @Override
-    public User updateStatus(UUID id, String status) {
-        User user = userRepository.findById(id);
-        user.updateStatus(status);
-        return userRepository.save(user);
-    }
+//    @Override
+//    public User updateStatus(UUID id, String status) {
+//        User user = userRepository.findById(id);
+//        user.updateStatus(status);
+//        return userRepository.save(user);
+//    }
 
     @Override
     public void delete(UUID id) {
