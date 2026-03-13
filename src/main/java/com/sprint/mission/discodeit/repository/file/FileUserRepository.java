@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -65,6 +66,14 @@ public class FileUserRepository implements UserRepository {
             throw new IllegalArgumentException("[user] 없는 id 입니다.");
         }
         return data.get(id);
+    }
+
+    @Override
+    public Optional<User> findByName(String name) {
+        Map<UUID, User> data = load();
+        return data.values().stream()
+                .filter(u -> u.getName().equals(name))
+                .findAny();
     }
 
     @Override
