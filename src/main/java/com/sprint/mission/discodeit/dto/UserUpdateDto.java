@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.dto;
 
-public record UserCreateDto(
+import java.util.UUID;
+
+public record UserUpdateDto(
+        UUID id,
         String name,
         String email,
         String password,
         byte[] profileImage
 ) {
 }
-
-

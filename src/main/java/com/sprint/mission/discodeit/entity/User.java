@@ -32,15 +32,14 @@ public class User implements Serializable {
         this.profileImageId = profileImageId;
     }
 
-    public void updateName(String name) {
+    public void update(String name, String email, String password, UUID profileImageId) {
         this.name = name;
+        this.email = email;
+        this.password = password;
+        this.profileImageId = profileImageId;
         updatedAt = Instant.now();
     }
 
-//    public void updateStatus(String status) {
-//        this.status = status;
-//        updatedAt = Instant.now();
-//    }
 
     @Override
     public String toString() {
@@ -48,6 +47,7 @@ public class User implements Serializable {
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", profileImageId='" + profileImageId + '\'' +
                 "}";
     }
 }
