@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -51,10 +50,11 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelInfoDto> findAllByUserId(UUID userId) {
+        // 한 유저가 속한 PRIVATE 채팅방과, 공개방인 PUBLIC 채팅방 목록을 보여주는 메서드
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 userId 입니다."));
 
-        List<ChannelInfoDto> privateChannels = readStatusRepository.findByUserId(user.getId()).stream()
+        List<ChannelInfoDto> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
                 .map(ReadStatus::getChannelId)
                 .map(this::findById)
                 .toList();
@@ -86,7 +86,7 @@ public class BasicChannelService implements ChannelService {
                 .orElse(null);
 
         if (channel.getType().equals(ChannelType.PRIVATE)) {
-            List<ReadStatus> status = readStatusRepository.findByChannelId(channel.getId());
+            List<ReadStatus> status = readStatusRepository.findAllByChannelId(channel.getId());
 
             List<UUID> userIdList = status.stream()
                     .map(ReadStatus::getUserId)
