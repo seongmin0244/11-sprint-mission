@@ -28,12 +28,8 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User findById(UUID id) {
-        User user = data.get(id);
-        if (user == null) {
-            throw new IllegalArgumentException("[user] 없는 id 입니다.");
-        }
-        return user;
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override

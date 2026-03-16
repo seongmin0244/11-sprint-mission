@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserCreateDto;
-import com.sprint.mission.discodeit.dto.UserInformationDto;
+import com.sprint.mission.discodeit.dto.UserInfoDto;
 import com.sprint.mission.discodeit.dto.UserUpdateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -49,30 +49,32 @@ public class BasicUserService implements UserService{
     }
 
     @Override
-    public List<UserInformationDto> findAll() {
+    public List<UserInfoDto> findAll() {
         List<User> users = userRepository.findAll().values().stream().toList();
 
-        List<UserInformationDto> dtos = users.stream()
+        List<UserInfoDto> dtos = users.stream()
                 .map(u -> {
                     UserStatus status = userStatusRepository.findById(u.getId());
-                    return new UserInformationDto(u.getId(), u.getName(), u.getEmail(), u.getProfileImageId(), status.isOnline());
+                    return new UserInfoDto(u.getId(), u.getName(), u.getEmail(), u.getProfileImageId(), status.isOnline());
                 })
                 .toList();
         return dtos;
     }
 
     @Override
-    public UserInformationDto findById(UUID id) {
-        User user = userRepository.findById(id);
+    public UserInfoDto findById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         UserStatus status = userStatusRepository.findById(user.getId());
-        UserInformationDto dto = new UserInformationDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
+        UserInfoDto dto = new UserInfoDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
 
         return dto;
     }
 
     @Override
-    public UserInformationDto update(UserUpdateDto dto) {
-        User user = userRepository.findById(dto.id());
+    public UserInfoDto update(UserUpdateDto dto) {
+        User user = userRepository.findById(dto.id())
+                .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
 
         boolean isDuplicated = findAll().stream()
                 // 새로 받은 정보가 나를 제외하고, 다른 객체의 이름 및 이메일과 다른지 검시
@@ -96,14 +98,15 @@ public class BasicUserService implements UserService{
         // findByUserId()를 사용해야 함
         UserStatus status = userStatusRepository.findByUserId(user.getId());
 
-        UserInformationDto updatedDto = new UserInformationDto(user.getId(),
+        UserInfoDto updatedDto = new UserInfoDto(user.getId(),
                 user.getName(), user.getEmail(), newProfileImageId, status.isOnline());
         return updatedDto;
     }
 
     @Override
     public void delete(UUID id) {
-        User user = userRepository.findById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         if (user.getProfileImageId() != null) {
             binaryContentRepository.delete(user.getProfileImageId());
         }

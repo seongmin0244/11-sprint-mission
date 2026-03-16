@@ -60,12 +60,9 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User findById(UUID id) {
+    public Optional<User> findById(UUID id) {
         Map<UUID, User> data = load();
-        if (data.get(id) == null) {
-            throw new IllegalArgumentException("[user] 없는 id 입니다.");
-        }
-        return data.get(id);
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
