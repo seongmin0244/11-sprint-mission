@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -60,12 +61,9 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel findById(UUID id) {
+    public Optional<Channel> findById(UUID id) {
         Map<UUID, Channel> data = load();
-        if (data.get(id) == null) {
-            throw new IllegalArgumentException("[channel] 없는 id 입니다.");
-        }
-        return data.get(id);
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override

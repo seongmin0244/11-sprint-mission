@@ -7,9 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class FileMessageRepository implements MessageRepository {
@@ -63,6 +61,14 @@ public class FileMessageRepository implements MessageRepository {
                 .filter(m -> m.getId().equals(id))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("[message] 없는 id 입니다."));
+    }
+
+    @Override
+    public Optional<Message> findLatestMessageByChannelId(UUID channelId) {
+        List<Message> data = load();
+        return data.stream()
+                .filter(m -> m.getChannelId().equals(channelId))
+                .max(Comparator.comparing(Message::getCreatedAt));
     }
 
     @Override
