@@ -55,12 +55,11 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message findById(UUID id) {
+    public Optional<Message> findById(UUID id) {
         List<Message> data = load();
         return data.stream()
                 .filter(m -> m.getId().equals(id))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("[message] 없는 id 입니다."));
+                .findAny();
     }
 
     @Override
@@ -74,11 +73,7 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public void delete(UUID id) {
         List<Message> data = load();
-        Message message = data.stream()
-                .filter(m -> m.getId().equals(id))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("[message] 없는 id 입니다."));
-        data.remove(message);
+        data.removeIf(m -> m.getId().equals(id));
         saveListToFile(data);
     }
 

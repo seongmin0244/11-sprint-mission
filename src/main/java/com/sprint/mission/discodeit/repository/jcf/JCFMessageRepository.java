@@ -28,11 +28,10 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message findById(UUID id) {
+    public Optional<Message> findById(UUID id) {
         return data.stream()
                 .filter(m -> m.getId().equals(id))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("[message] 없는 id 입니다."));
+                .findAny();
     }
 
     public Optional<Message> findLatestMessageByChannelId(UUID channelId) {
@@ -43,8 +42,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public void delete(UUID id) {
-        Message message = findById(id);
-        data.remove(message);
+        data.removeIf(m -> m.getId().equals(id));
     }
 
     @Override
