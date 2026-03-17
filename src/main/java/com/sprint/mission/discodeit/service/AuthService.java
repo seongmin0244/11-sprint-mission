@@ -20,14 +20,15 @@ public class AuthService {
     public UserInfoDto login(UserLoginDto dto) {
         // dto에서 가져온 이름으로 찾은 유저가 있다면, 유저 비밀번호와 일치하는지 확인
         User user = userRepository.findByName(dto.name())
-                .orElseThrow(() -> new IllegalArgumentException("없는 아이디 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
 
         if (!user.getPassword().equals(dto.password())) {
             throw new IllegalArgumentException("잘못된 비밀번호 입니다.");
         }
 
-        UserStatus status = userStatusRepository.findByUserId(user.getId());
-        UserInfoDto userInfo = new UserInfoDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
-        return userInfo;
+        UserStatus status = userStatusRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
+
+        return new UserInfoDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
     }
 }

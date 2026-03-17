@@ -27,8 +27,8 @@ public class BasicUserService implements UserService{
 
     @Override
     public User create(UserCreateDto dto) {
-        boolean isDuplicated = findAll().stream()
-                .anyMatch(u -> u.name().equals(dto.name()) || u.email().equals(dto.email()));
+        boolean isDuplicated = userRepository.findAll().values().stream()
+                .anyMatch(u -> u.getName().equals(dto.name()) || u.getEmail().equals(dto.email()));
         if (isDuplicated) {
             throw new IllegalArgumentException("이미 가입된 유저입니다.");
         }
@@ -52,23 +52,23 @@ public class BasicUserService implements UserService{
     public List<UserInfoDto> findAll() {
         List<User> users = userRepository.findAll().values().stream().toList();
 
-        List<UserInfoDto> dtos = users.stream()
+        return users.stream()
                 .map(u -> {
-                    UserStatus status = userStatusRepository.findById(u.getId());
+                    UserStatus status = userStatusRepository.findByUserId(u.getId())
+                            .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
                     return new UserInfoDto(u.getId(), u.getName(), u.getEmail(), u.getProfileImageId(), status.isOnline());
                 })
                 .toList();
-        return dtos;
     }
 
     @Override
     public UserInfoDto findById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
-        UserStatus status = userStatusRepository.findById(user.getId());
-        UserInfoDto dto = new UserInfoDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
+        UserStatus status = userStatusRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 
-        return dto;
+        return new UserInfoDto(user.getId(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
     }
 
     @Override
@@ -76,17 +76,20 @@ public class BasicUserService implements UserService{
         User user = userRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
 
-        boolean isDuplicated = findAll().stream()
+        boolean isDuplicated = userRepository.findAll().values().stream()
                 // 새로 받은 정보가 나를 제외하고, 다른 객체의 이름 및 이메일과 다른지 검시
-                .filter(u -> !u.id().equals(dto.id()))
-                .anyMatch(u -> u.name().equals(dto.name())
-                        || u.email().equals(dto.email()));
+                .filter(u -> !u.getId().equals(dto.id()))
+                .anyMatch(u -> u.getName().equals(dto.name())
+                        || u.getEmail().equals(dto.email()));
         if (isDuplicated) {
             throw new IllegalArgumentException("이미 사용 중인 닉네임/이메일입니다.");
         }
 
         UUID newProfileImageId = user.getProfileImageId();
         if (dto.profileImage() != null) {
+            if (newProfileImageId != null) {
+                binaryContentRepository.delete(newProfileImageId);
+            }
             BinaryContent image = new BinaryContent(dto.profileImage());
             binaryContentRepository.save(image);
             newProfileImageId = image.getId();
@@ -96,21 +99,24 @@ public class BasicUserService implements UserService{
         userRepository.save(user);
 
         // findByUserId()를 사용해야 함
-        UserStatus status = userStatusRepository.findByUserId(user.getId());
+        UserStatus status = userStatusRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 
-        UserInfoDto updatedDto = new UserInfoDto(user.getId(),
+        return new UserInfoDto(user.getId(),
                 user.getName(), user.getEmail(), newProfileImageId, status.isOnline());
-        return updatedDto;
     }
 
     @Override
     public void delete(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
+        UserStatus status = userStatusRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
+
         if (user.getProfileImageId() != null) {
             binaryContentRepository.delete(user.getProfileImageId());
         }
-        UserStatus status = userStatusRepository.findByUserId(user.getId());
+
         userStatusRepository.delete(status.getId());
         userRepository.delete(user.getId());
     }
