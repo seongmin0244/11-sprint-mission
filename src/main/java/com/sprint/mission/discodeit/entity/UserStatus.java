@@ -23,6 +23,10 @@ public class UserStatus {
         this.userId = userId;
     }
 
+    public void updateTime() {
+        updatedAt = Instant.now();
+    }
+
     public boolean isOnline() {
         Instant lastTime = this.updatedAt;
         Instant fiveMinutesAgo = Instant.now().minus(5, ChronoUnit.MINUTES);

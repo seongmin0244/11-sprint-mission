@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.ReadStatusCreateDto;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateDto;
+import com.sprint.mission.discodeit.dto.StatusUpdateDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -56,7 +56,7 @@ public class ReadStatusService {
         return readStatusRepository.findAllByUserId(user.getId());
     }
 
-    public ReadStatus update(ReadStatusUpdateDto dto) {
+    public ReadStatus update(StatusUpdateDto dto) {
         ReadStatus readStatus = readStatusRepository.find(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("없는 readStatus id 입니다."));
 
