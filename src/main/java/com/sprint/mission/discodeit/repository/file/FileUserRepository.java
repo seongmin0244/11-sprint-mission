@@ -25,7 +25,6 @@ public class FileUserRepository implements UserRepository {
                     ObjectInputStream ois = new ObjectInputStream(fis);
             ) {
                 return (Map<UUID, User>) ois.readObject();
-
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException("파일에서 유저 데이터 불러오기 실패", e);
             }

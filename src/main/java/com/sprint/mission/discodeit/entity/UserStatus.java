@@ -36,4 +36,13 @@ public class UserStatus implements Serializable {
 
         return lastTime.isAfter(fiveMinutesAgo);
     }
+
+    @Override
+    public String toString() {
+        return "UserStatus{" +
+                "userId='" + userId + '\'' +
+                ", updateTime='" + updatedAt + '\'' +
+                ", isOnline='" + isOnline() + '\'' +
+                "}";
+    }
 }

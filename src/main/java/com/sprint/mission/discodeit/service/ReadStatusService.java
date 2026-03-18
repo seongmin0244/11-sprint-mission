@@ -1,28 +1,26 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.ReadStatusCreateDto;
-import com.sprint.mission.discodeit.dto.StatusUpdateDto;
+import com.sprint.mission.discodeit.dto.ReadStatusUpdateDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
-
-    public ReadStatusService(ReadStatusRepository readStatusRepository, UserRepository userRepository, ChannelRepository channelRepository) {
-        this.readStatusRepository = readStatusRepository;
-        this.userRepository = userRepository;
-        this.channelRepository = channelRepository;
-    }
 
     public ReadStatus create(ReadStatusCreateDto dto) {
         User user = userRepository.findById(dto.userId())
@@ -30,12 +28,6 @@ public class ReadStatusService {
         Channel channel = channelRepository.findById(dto.channelId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
-//        boolean isDuplicated = readStatusRepository.findAllByUserId(user.getId()).stream()
-//                .anyMatch(rs -> rs.getChannelId().equals(dto.channelId()));
-//
-//        if (!isDuplicated) {
-//            throw new IllegalArgumentException("이미 존재하는 ReadStatus 입니다.");
-//        }
         if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) {
             throw new IllegalArgumentException("이미 존재하는 ReadStatus 입니다.");
         }
@@ -56,9 +48,11 @@ public class ReadStatusService {
         return readStatusRepository.findAllByUserId(user.getId());
     }
 
-    public ReadStatus update(StatusUpdateDto dto) {
-        ReadStatus readStatus = readStatusRepository.find(dto.id())
-                .orElseThrow(() -> new IllegalArgumentException("없는 readStatus id 입니다."));
+    public ReadStatus update(ReadStatusUpdateDto dto) {
+        ReadStatus readStatus = readStatusRepository.findAllByUserId(dto.userId()).stream()
+                .filter(rs -> rs.getChannelId().equals(dto.channelId()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저와 채널의 readStatus가 생성되지 않았습니다."));
 
         readStatus.updateTime();
 

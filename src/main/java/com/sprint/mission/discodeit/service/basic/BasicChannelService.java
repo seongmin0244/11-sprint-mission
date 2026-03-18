@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelInfoDto;
-import com.sprint.mission.discodeit.dto.ChannelUpdateDto;
-import com.sprint.mission.discodeit.dto.PrivateChannelCreateDto;
-import com.sprint.mission.discodeit.dto.PublicChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelInfoDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelUpdateDto;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateDto;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -64,15 +64,7 @@ public class BasicChannelService implements ChannelService {
                 .map(c -> this.findById(c.getId()))
                 .toList();
 
-        return Stream.concat(publicChannels.stream(), publicChannels.stream()).toList();
-    }
-
-    @Override
-    public List<Channel> findByName(String name) {
-        Map<UUID, Channel> data = channelRepository.findAll();
-        return data.values().stream()
-                .filter(c -> c.getName().equals(name))
-                .toList();
+        return Stream.concat(privateChannels.stream(), publicChannels.stream()).toList();
     }
 
     @Override

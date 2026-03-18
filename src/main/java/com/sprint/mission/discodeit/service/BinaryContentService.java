@@ -3,18 +3,18 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.BinaryContentCreateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
-
-    public BinaryContentService(BinaryContentRepository binaryContentRepository) {
-        this.binaryContentRepository = binaryContentRepository;
-    }
 
     public BinaryContent create(BinaryContentCreateDto dto) {
         if (dto.bytes() == null) {

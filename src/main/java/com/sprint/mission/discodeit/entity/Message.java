@@ -20,7 +20,6 @@ public class Message implements Serializable {
     private UUID userId;
     private UUID channelId;
     private String content;
-
     private List<UUID> attachmentIds;
 
     public Message(UUID userId, UUID channelId, String content, List<UUID> attachmentIds) {
@@ -45,6 +44,7 @@ public class Message implements Serializable {
                 "content='" + content + '\'' +
                 ", userName='" + userId + '\'' +
                 ", channelId='" + channelId + '\'' +
+                ", attachments='" + attachmentIds + '\'' +
                 "}";
     }
 }

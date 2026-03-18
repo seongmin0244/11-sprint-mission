@@ -2,9 +2,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.apache.logging.log4j.CloseableThreadContext;
 
-import java.time.Instant;
 import java.util.*;
 
 public class JCFMessageRepository implements MessageRepository {

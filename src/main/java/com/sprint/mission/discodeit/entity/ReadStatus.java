@@ -30,4 +30,13 @@ public class ReadStatus implements Serializable {
     public void updateTime() {
         updatedAt = Instant.now();
     }
+
+    @Override
+    public String toString() {
+        return "ReadStatus{" +
+                "userId='" + userId + '\'' +
+                ", channelId='" + channelId + '\'' +
+                ", updateTime='" + updatedAt + '\'' +
+                "}";
+    }
 }
