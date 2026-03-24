@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
-import com.sprint.mission.discodeit.dto.message.MessageInfoDto;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -48,26 +48,26 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public List<MessageInfoDto> findAllByChannelId(UUID channelId) {
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
         return messageRepository.findAll().stream()
                 .filter(m -> m.getChannelId().equals(channel.getId()))
-                .map(m -> new MessageInfoDto(m.getId(), m.getUserId(), m.getChannelId(),
+                .map(m -> new MessageDto(m.getId(), m.getUserId(), m.getChannelId(),
                             m.getContent(), m.getAttachmentIds()))
                 .toList();
     }
 
     @Override
-    public MessageInfoDto update(MessageUpdateDto dto) {
-        Message message = messageRepository.findById(dto.id())
+    public MessageDto update(UUID id, MessageUpdateDto dto) {
+        Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 message id 입니다."));
 
         message.update(dto.content());
         messageRepository.save(message);
 
-        return new MessageInfoDto(message.getId(), message.getUserId(), message.getChannelId(),
+        return new MessageDto(message.getId(), message.getUserId(), message.getChannelId(),
                 message.getContent(), message.getAttachmentIds());
     }
 

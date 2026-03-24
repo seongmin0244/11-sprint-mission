@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.dto.message;
 import java.util.List;
 import java.util.UUID;
 
-public record MessageInfoDto(
+public record MessageDto(
         UUID id,
         UUID userId,
         UUID channelId,

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelInfoDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelUpdateDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateDto;
@@ -49,17 +49,17 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelInfoDto> findAllByUserId(UUID userId) {
+    public List<ChannelDto> findAllByUserId(UUID userId) {
         // 한 유저가 속한 PRIVATE 채팅방과, 공개방인 PUBLIC 채팅방 목록을 보여주는 메서드
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 userId 입니다."));
 
-        List<ChannelInfoDto> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
+        List<ChannelDto> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
                 .map(ReadStatus::getChannelId)
                 .map(this::findById)
                 .toList();
 
-        List<ChannelInfoDto> publicChannels = channelRepository.findAll().values().stream()
+        List<ChannelDto> publicChannels = channelRepository.findAll().values().stream()
                 .filter(c -> c.getType().equals(ChannelType.PUBLIC))
                 .map(c -> this.findById(c.getId()))
                 .toList();
@@ -68,7 +68,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelInfoDto findById(UUID channelId) {
+    public ChannelDto findById(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
@@ -84,25 +84,33 @@ public class BasicChannelService implements ChannelService {
                     .map(ReadStatus::getUserId)
                     .toList();
 
-            return new ChannelInfoDto(channel.getId(), channel.getName(), channel.getDescription(),
+            return new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(),
                     channel.getType(), latestMessageTime, userIdList);
         }
 
-        return new ChannelInfoDto(channel.getId(), channel.getName(), channel.getDescription(),
+        return new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(),
                 channel.getType(), latestMessageTime, List.of());
     }
 
     @Override
-    public ChannelInfoDto update(ChannelUpdateDto dto) {
-        Channel channel = channelRepository.findById(dto.id())
+    public List<UUID> getUserIds(UUID id) {
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
+        List<ReadStatus> readStatusList = readStatusRepository.findAllByChannelId(channel.getId());
+        return readStatusList.stream()
+                .map(ReadStatus::getUserId)
+                .toList();
+    }
+
+    @Override
+    public Channel update(UUID id, ChannelUpdateDto dto) {
+        Channel channel = channelRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
         if (channel.getType().equals(ChannelType.PRIVATE)) {
             throw new IllegalArgumentException("채널의 타입이 수정 불가한 PRIVATE 입니다.");
         }
         channel.update(dto.name(), dto.description());
-        channelRepository.save(channel);
-
-        return findById(channel.getId());
+        return channelRepository.save(channel);
     }
 
     @Override
