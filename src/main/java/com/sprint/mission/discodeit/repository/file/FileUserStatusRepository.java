@@ -20,7 +20,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
         if (Files.exists(Path.of(FILE_PATH))) {
             try (
                     FileInputStream fis = new FileInputStream(FILE_PATH);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
                 return (Map<UUID, UserStatus>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
@@ -33,7 +33,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
     private void saveMapToFile(Map<UUID, UserStatus> data) {
         try (
                 FileOutputStream fos = new FileOutputStream(FILE_PATH);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(data);
         } catch (IOException e) {
