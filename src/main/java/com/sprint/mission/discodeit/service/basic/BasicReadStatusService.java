@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusCreateDto;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateDto;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -23,7 +23,7 @@ public class BasicReadStatusService implements com.sprint.mission.discodeit.serv
     private final ChannelRepository channelRepository;
 
     @Override
-    public ReadStatus create(ReadStatusCreateDto dto) {
+    public ReadStatus create(ReadStatusCreateRequest dto) {
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         Channel channel = channelRepository.findById(dto.channelId())
@@ -52,7 +52,7 @@ public class BasicReadStatusService implements com.sprint.mission.discodeit.serv
     }
 
     @Override
-    public ReadStatus update(ReadStatusUpdateDto dto) {
+    public ReadStatus update(ReadStatusUpdateRequest dto) {
         ReadStatus readStatus = readStatusRepository.findAllByUserId(dto.userId()).stream()
                 .filter(rs -> rs.getChannelId().equals(dto.channelId()))
                 .findAny()

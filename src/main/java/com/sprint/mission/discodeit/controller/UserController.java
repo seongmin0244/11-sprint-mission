@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
@@ -24,19 +24,19 @@ public class UserController {
     private final UserStatusService userStatusService;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<UserDto> create(@RequestBody UserCreateDto dto) {
+    public ResponseEntity<UserResponse> create(@RequestBody UserCreateRequest dto) {
         User u = userService.create(dto);
-        UserDto userDto = new UserDto(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), true);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+        UserResponse userResponse = new UserResponse(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), true);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<UserDto> update(@PathVariable UUID id,
-                          @RequestBody UserUpdateDto dto) {
+    public ResponseEntity<UserResponse> update(@PathVariable UUID id,
+                                               @RequestBody UserUpdateRequest dto) {
         User u = userService.update(id, dto);
-        UserDto userDto = new UserDto(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), true);
+        UserResponse userResponse = new UserResponse(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), true);
 
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userResponse);
 
     }
 
@@ -46,10 +46,12 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    // 단건 조회 추가
+
     @RequestMapping(value = "/findAll", method = RequestMethod.GET)
-    public ResponseEntity<List<UserDto>> findAll() {
-        List<UserDto> userDtoList = userService.findAll();
-        return ResponseEntity.ok(userDtoList);
+    public ResponseEntity<List<UserResponse>> findAll() {
+        List<UserResponse> userResponseList = userService.findAll();
+        return ResponseEntity.ok(userResponseList);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)

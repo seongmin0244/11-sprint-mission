@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateDto;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -25,7 +25,7 @@ public class BasicUserService implements UserService{
 
 
     @Override
-    public User create(UserCreateDto dto) {
+    public User create(UserCreateRequest dto) {
         boolean isDuplicated = userRepository.findAll().values().stream()
                 .anyMatch(u -> u.getName().equals(dto.name()) || u.getEmail().equals(dto.email()));
         if (isDuplicated) {
@@ -46,30 +46,30 @@ public class BasicUserService implements UserService{
     }
 
     @Override
-    public List<UserDto> findAll() {
+    public List<UserResponse> findAll() {
         List<User> users = userRepository.findAll().values().stream().toList();
 
         return users.stream()
                 .map(u -> {
                     UserStatus status = userStatusRepository.findByUserId(u.getId())
                             .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
-                    return new UserDto(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), status.isOnline());
+                    return new UserResponse(u.getId(), u.getCreatedAt(), u.getUpdatedAt(), u.getName(), u.getEmail(), u.getProfileImageId(), status.isOnline());
                 })
                 .toList();
     }
 
     @Override
-    public UserDto findById(UUID id) {
+    public UserResponse findById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         UserStatus status = userStatusRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 
-        return new UserDto(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
+        return new UserResponse(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
     }
 
     @Override
-    public User update(UUID userId, UserUpdateDto dto) {
+    public User update(UUID userId, UserUpdateRequest dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
 
@@ -103,14 +103,12 @@ public class BasicUserService implements UserService{
     public void delete(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
-        UserStatus status = userStatusRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 
         if (user.getProfileImageId() != null) {
             binaryContentRepository.delete(user.getProfileImageId());
         }
 
-        userStatusRepository.delete(status.getId());
+        userStatusRepository.deleteByUserId(user.getId());
         userRepository.delete(user.getId());
     }
 }

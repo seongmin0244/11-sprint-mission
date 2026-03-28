@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserStatusUpdateDto;
-import com.sprint.mission.discodeit.dto.UserStatusCreateDto;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -20,7 +20,7 @@ public class BasicUserStatusService implements com.sprint.mission.discodeit.serv
     private final UserRepository userRepository;
 
     @Override
-    public UserStatus create(UserStatusCreateDto dto){
+    public UserStatus create(UserStatusCreateRequest dto){
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         if (userStatusRepository.findByUserId(user.getId()).isPresent()) {
@@ -44,7 +44,7 @@ public class BasicUserStatusService implements com.sprint.mission.discodeit.serv
     }
 
     @Override
-    public UserStatus update(UserStatusUpdateDto dto) {
+    public UserStatus update(UserStatusUpdateRequest dto) {
         UserStatus userStatus = userStatusRepository.findById(dto.id())
                 .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentCreateDto;
+import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class BinaryContentController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<BinaryContent> create(@RequestParam("file") MultipartFile file) throws IOException {
-        BinaryContentCreateDto dto = new BinaryContentCreateDto(file.getBytes());
+        BinaryContentCreateRequest dto = new BinaryContentCreateRequest(file.getBytes());
         BinaryContent binaryContent = binaryContentService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(binaryContent);
     }

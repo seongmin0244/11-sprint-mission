@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +21,17 @@ public class MessageController {
     private final MessageService messageService;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<MessageDto> create(@RequestBody MessageCreateDto dto) {
+    public ResponseEntity<MessageResponse> create(@RequestBody MessageCreateRequest dto) {
         Message m = messageService.create(dto);
-        MessageDto messageDto = new MessageDto(m.getId(), m.getUserId(), m.getChannelId(), m.getContent(), m.getAttachmentIds());
-        return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
+        MessageResponse messageResponse = new MessageResponse(m.getId(), m.getUserId(), m.getChannelId(), m.getContent(), m.getAttachmentIds());
+        return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<MessageDto> update(@PathVariable UUID id,
-                             @RequestBody MessageUpdateDto dto) {
-        MessageDto messageDto = messageService.update(id, dto);
-        return ResponseEntity.ok(messageDto);
+    public ResponseEntity<MessageResponse> update(@PathVariable UUID id,
+                                                  @RequestBody MessageUpdateRequest dto) {
+        MessageResponse messageResponse = messageService.update(id, dto);
+        return ResponseEntity.ok(messageResponse);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -41,8 +41,8 @@ public class MessageController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<MessageDto>> findAll(@RequestParam("channelId") UUID channelId) {
-        List<MessageDto> messageDtoList = messageService.findAllByChannelId(channelId);
-        return ResponseEntity.ok(messageDtoList);
+    public ResponseEntity<List<MessageResponse>> findAll(@RequestParam("channelId") UUID channelId) {
+        List<MessageResponse> messageResponseList = messageService.findAllByChannelId(channelId);
+        return ResponseEntity.ok(messageResponseList);
     }
 }

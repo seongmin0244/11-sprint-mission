@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.UserLoginDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserLoginRequest;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ public class AuthController {
     private final AuthService authService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<UserDto> login(@RequestBody UserLoginDto dto) {
-        UserDto userDto = authService.login(dto);
-        return ResponseEntity.ok(userDto);
+    public ResponseEntity<UserResponse> login(@RequestBody UserLoginRequest dto) {
+        UserResponse userResponse = authService.login(dto);
+        return ResponseEntity.ok(userResponse);
     }
 }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentCreateDto;
+import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class BasicBinaryContentService implements com.sprint.mission.discodeit.s
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent create(BinaryContentCreateDto dto) {
+    public BinaryContent create(BinaryContentCreateRequest dto) {
         if (dto.bytes() == null) {
             throw new IllegalArgumentException("저장할 이미지/파일이 없습니다.");
         }

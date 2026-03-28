@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.UserLoginDto;
+import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserLoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -18,7 +18,7 @@ public class BasicAuthService implements AuthService {
     private final UserStatusRepository userStatusRepository;
 
     @Override
-    public UserDto login(UserLoginDto dto) {
+    public UserResponse login(UserLoginRequest dto) {
         // dto에서 가져온 이름으로 찾은 유저가 있다면, 유저 비밀번호와 일치하는지 확인
         User user = userRepository.findByName(dto.name())
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
@@ -30,6 +30,6 @@ public class BasicAuthService implements AuthService {
         UserStatus status = userStatusRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 userStatus id 입니다."));
 
-        return new UserDto(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
+        return new UserResponse(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getName(), user.getEmail(), user.getProfileImageId(), status.isOnline());
     }
 }

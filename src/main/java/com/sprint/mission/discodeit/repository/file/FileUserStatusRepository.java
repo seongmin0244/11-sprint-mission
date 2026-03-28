@@ -72,4 +72,11 @@ public class FileUserStatusRepository implements UserStatusRepository {
         data.values().removeIf(us -> us.getId().equals(id));
         saveMapToFile(data);
     }
+
+    @Override
+    public void deleteByUserId(UUID userId) {
+        Map<UUID, UserStatus> data = load();
+        data.values().removeIf(us -> us.getUserId().equals(userId));
+        saveMapToFile(data);
+    }
 }

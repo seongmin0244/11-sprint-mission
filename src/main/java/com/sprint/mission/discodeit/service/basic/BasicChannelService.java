@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelDto;
-import com.sprint.mission.discodeit.dto.channel.ChannelUpdateDto;
-import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateDto;
-import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
+import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -27,13 +27,13 @@ public class BasicChannelService implements ChannelService {
     private final ReadStatusRepository readStatusRepository;
 
     @Override
-    public Channel createPublicChannel(PublicChannelCreateDto dto) {
+    public Channel createPublicChannel(PublicChannelCreateRequest dto) {
         Channel channel = new Channel(dto.name(), dto.description(), ChannelType.PUBLIC);
         return channelRepository.save(channel);
     }
 
     @Override
-    public Channel createPrivateChannel(PrivateChannelCreateDto dto) {
+    public Channel createPrivateChannel(PrivateChannelCreateRequest dto) {
         if (dto.users() == null || dto.users().size() < 2) {
             throw new IllegalArgumentException("채널에 참여할 유저가 최소 2명 이상이어야 합니다.");
         }
@@ -49,17 +49,18 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelDto> findAllByUserId(UUID userId) {
+    public List<ChannelResponse> findAllByUserId(UUID userId) {
         // 한 유저가 속한 PRIVATE 채팅방과, 공개방인 PUBLIC 채팅방 목록을 보여주는 메서드
+        // refactor: 비효율 로직 개선 - findAll은 한 번만 쓰고 filter로 골라내기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 userId 입니다."));
 
-        List<ChannelDto> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
+        List<ChannelResponse> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
                 .map(ReadStatus::getChannelId)
                 .map(this::findById)
                 .toList();
 
-        List<ChannelDto> publicChannels = channelRepository.findAll().values().stream()
+        List<ChannelResponse> publicChannels = channelRepository.findAll().values().stream()
                 .filter(c -> c.getType().equals(ChannelType.PUBLIC))
                 .map(c -> this.findById(c.getId()))
                 .toList();
@@ -68,7 +69,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelDto findById(UUID channelId) {
+    public ChannelResponse findById(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
@@ -84,11 +85,11 @@ public class BasicChannelService implements ChannelService {
                     .map(ReadStatus::getUserId)
                     .toList();
 
-            return new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(),
+            return new ChannelResponse(channel.getId(), channel.getName(), channel.getDescription(),
                     channel.getType(), latestMessageTime, userIdList);
         }
 
-        return new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(),
+        return new ChannelResponse(channel.getId(), channel.getName(), channel.getDescription(),
                 channel.getType(), latestMessageTime, List.of());
     }
 
@@ -103,7 +104,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID id, ChannelUpdateDto dto) {
+    public Channel update(UUID id, ChannelUpdateRequest dto) {
         Channel channel = channelRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
         if (channel.getType().equals(ChannelType.PRIVATE)) {

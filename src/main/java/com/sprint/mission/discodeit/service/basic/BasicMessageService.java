@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateDto;
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateDto;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -27,7 +27,7 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Message create(MessageCreateDto dto) {
+    public Message create(MessageCreateRequest dto) {
         userRepository.findById(dto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 user id 입니다."));
         channelRepository.findById(dto.channelId())
@@ -36,9 +36,11 @@ public class BasicMessageService implements MessageService {
         List<UUID> attachmentIds = List.of();
         if (dto.attachments()!= null) {
             attachmentIds = dto.attachments().stream()
-                    .map(BinaryContent::new)
-                    .peek(binaryContentRepository::save)
-                    .map(BinaryContent::getId)
+                    .map(bytes -> {
+                        BinaryContent bc = new BinaryContent(bytes);
+                        binaryContentRepository.save(bc);
+                        return bc.getId();
+                    })
                     .toList();
         }
 
@@ -48,26 +50,25 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public List<MessageDto> findAllByChannelId(UUID channelId) {
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
-        return messageRepository.findAll().stream()
-                .filter(m -> m.getChannelId().equals(channel.getId()))
-                .map(m -> new MessageDto(m.getId(), m.getUserId(), m.getChannelId(),
+        return messageRepository.findAllByChannelId(channel.getId()).stream()
+                .map(m -> new MessageResponse(m.getId(), m.getUserId(), m.getChannelId(),
                             m.getContent(), m.getAttachmentIds()))
                 .toList();
     }
 
     @Override
-    public MessageDto update(UUID id, MessageUpdateDto dto) {
+    public MessageResponse update(UUID id, MessageUpdateRequest dto) {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("없는 message id 입니다."));
 
         message.update(dto.content());
         messageRepository.save(message);
 
-        return new MessageDto(message.getId(), message.getUserId(), message.getChannelId(),
+        return new MessageResponse(message.getId(), message.getUserId(), message.getChannelId(),
                 message.getContent(), message.getAttachmentIds());
     }
 
