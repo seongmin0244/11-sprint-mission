@@ -41,7 +41,7 @@ public class BasicChannelService implements ChannelService {
         dto.users().forEach(i -> {
             User user = userRepository.findById(i)
                     .orElseThrow(() -> new IllegalArgumentException("없는 user 입니다."));
-            ReadStatus status = new ReadStatus(user.getId(), channel.getId());
+            ReadStatus status = new ReadStatus(user.getId(), channel.getId(), Instant.now());
             readStatusRepository.save(status);
         });
         channelRepository.save(channel);

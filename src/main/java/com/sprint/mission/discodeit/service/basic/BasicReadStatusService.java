@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class BasicReadStatusService implements com.sprint.mission.discodeit.serv
             throw new IllegalArgumentException("이미 존재하는 ReadStatus 입니다.");
         }
 
-        ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId());
+        ReadStatus readStatus = new ReadStatus(user.getId(), channel.getId(), Instant.now());
 
         return readStatusRepository.save(readStatus);
     }
@@ -51,6 +52,7 @@ public class BasicReadStatusService implements com.sprint.mission.discodeit.serv
         return readStatusRepository.findAllByUserId(user.getId());
     }
 
+    // 채팅방 읽음
     @Override
     public ReadStatus update(ReadStatusUpdateRequest dto) {
         ReadStatus readStatus = readStatusRepository.findAllByUserId(dto.userId()).stream()
@@ -58,7 +60,7 @@ public class BasicReadStatusService implements com.sprint.mission.discodeit.serv
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저와 채널의 readStatus가 생성되지 않았습니다."));
 
-        readStatus.updateTime();
+        readStatus.updateLastReadAt();
 
         return readStatusRepository.save(readStatus);
     }
