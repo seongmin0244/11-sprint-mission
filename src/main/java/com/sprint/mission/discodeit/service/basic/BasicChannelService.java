@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,17 +55,15 @@ public class BasicChannelService implements ChannelService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 userId 입니다."));
 
-        List<ChannelResponse> privateChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
+        Set<UUID> participatedChannels = readStatusRepository.findAllByUserId(user.getId()).stream()
                 .map(ReadStatus::getChannelId)
-                .map(this::findById)
-                .toList();
+                .collect(Collectors.toSet());
 
-        List<ChannelResponse> publicChannels = channelRepository.findAll().values().stream()
-                .filter(c -> c.getType().equals(ChannelType.PUBLIC))
-                .map(c -> this.findById(c.getId()))
+        return channelRepository.findAll().values().stream()
+                .filter(c -> c.getType().equals(ChannelType.PUBLIC) ||
+                participatedChannels.contains(c.getId()))
+                .map(this::toDto)
                 .toList();
-
-        return Stream.concat(privateChannels.stream(), publicChannels.stream()).toList();
     }
 
     @Override
@@ -73,24 +71,7 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 channel id 입니다."));
 
-        Optional<Message> message = messageRepository.findLatestMessageByChannelId(channel.getId());
-
-        Instant latestMessageTime = message.map(Message::getCreatedAt)
-                .orElse(null);
-
-        if (channel.getType().equals(ChannelType.PRIVATE)) {
-            List<ReadStatus> status = readStatusRepository.findAllByChannelId(channel.getId());
-
-            List<UUID> userIdList = status.stream()
-                    .map(ReadStatus::getUserId)
-                    .toList();
-
-            return new ChannelResponse(channel.getId(), channel.getName(), channel.getDescription(),
-                    channel.getType(), latestMessageTime, userIdList);
-        }
-
-        return new ChannelResponse(channel.getId(), channel.getName(), channel.getDescription(),
-                channel.getType(), latestMessageTime, List.of());
+            return toDto(channel);
     }
 
     @Override
@@ -121,5 +102,20 @@ public class BasicChannelService implements ChannelService {
         readStatusRepository.deleteByChannelId(channel.getId());
         messageRepository.deleteByChannelId(channel.getId());
         channelRepository.delete(channel.getId());
+    }
+
+    private ChannelResponse toDto(Channel channel) {
+        Instant latestMessageTime = messageRepository.findLatestMessageByChannelId(channel.getId())
+                .map(Message::getCreatedAt)
+                .orElse(null);
+
+        List<UUID> userIdList = List.of();
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
+            userIdList = readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                    .map(ReadStatus::getUserId)
+                    .toList();
+        }
+
+        return new ChannelResponse(channel.getId(), channel.getName(), channel.getDescription(), channel.getType(), latestMessageTime, userIdList);
     }
 }
