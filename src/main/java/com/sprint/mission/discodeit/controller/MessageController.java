@@ -23,7 +23,7 @@ public class MessageController {
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<MessageResponse> create(@RequestBody MessageCreateRequest dto) {
         Message m = messageService.create(dto);
-        MessageResponse messageResponse = new MessageResponse(m.getId(), m.getUserId(), m.getChannelId(), m.getContent(), m.getAttachmentIds());
+        MessageResponse messageResponse = new MessageResponse(m.getId(), m.getUserId(), m.getChannelId(), m.getContent(), m.getAttachmentIds(), m.getCreatedAt());
         return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
     }
 
