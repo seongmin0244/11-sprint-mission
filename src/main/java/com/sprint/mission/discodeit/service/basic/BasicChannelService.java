@@ -37,7 +37,7 @@ public class BasicChannelService implements ChannelService {
         if (dto.users() == null || dto.users().size() < 2) {
             throw new IllegalArgumentException("채널에 참여할 유저가 최소 2명 이상이어야 합니다.");
         }
-        Channel channel = new Channel(null, null, ChannelType.PRIVATE);
+        Channel channel = new Channel(dto.name(), null, ChannelType.PRIVATE);
         dto.users().forEach(i -> {
             User user = userRepository.findById(i)
                     .orElseThrow(() -> new IllegalArgumentException("없는 user 입니다."));
