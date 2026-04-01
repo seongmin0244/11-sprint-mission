@@ -52,9 +52,7 @@
                     "format": "binary"
                   }
                 },
-                "required": [
-                  "userCreateRequest"
-                ]
+                "required": true
               }
             }
           }
@@ -190,9 +188,7 @@
                     }
                   }
                 },
-                "required": [
-                  "messageCreateRequest"
-                ]
+                "required": true
               }
             }
           }
@@ -354,9 +350,7 @@
                     "format": "binary"
                   }
                 },
-                "required": [
-                  "userUpdateRequest"
-                ]
+                "required": true
               }
             }
           }
