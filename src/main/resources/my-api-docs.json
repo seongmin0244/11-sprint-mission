@@ -25,7 +25,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/User"
+                    "$ref": "#/components/schemas/UserDto"
                   }
                 }
               }
@@ -293,7 +293,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserDto"
                 }
               }
             }
@@ -889,9 +889,8 @@
           }
         }
       },
-      "User": {
+      "UserDto": {
         "type": "object",
-        "description": "User 기본 응답 객체",
         "properties": {
           "id": {
             "type": "string",
