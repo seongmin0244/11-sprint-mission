@@ -9,18 +9,23 @@ import java.util.UUID;
 @Getter
 public class BinaryContent implements Serializable {
 
-    private static final long SerialVersionUID = 1L;
+  private static final long SerialVersionUID = 1L;
 
-    private UUID id;
-    private Instant createdAt;
+  private UUID id;
+  private Instant createdAt;
 
-    // 파일 이름 필드 추가 (크기, 종류)
-    private byte[] bytes;
+  private String fileName;
+  private Long size;
+  private String contentType;
+  private byte[] bytes;
 
-    public BinaryContent(byte[] image) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+  public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
 
-        this.bytes = image;
-    }
+    this.fileName = fileName;
+    this.size = size;
+    this.contentType = contentType;
+    this.bytes = bytes;
+  }
 }

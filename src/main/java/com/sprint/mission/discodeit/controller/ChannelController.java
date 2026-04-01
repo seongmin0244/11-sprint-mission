@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -17,44 +18,47 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/channel")
+@RequestMapping("api/channels")
 public class ChannelController {
 
-    private final ChannelService channelService;
+  private final ChannelService channelService;
 
-    @RequestMapping(value = "/public", method = RequestMethod.POST)
-    public ResponseEntity<ChannelResponse> createPublic(@RequestBody PublicChannelCreateRequest dto) {
-        Channel c = channelService.createPublicChannel(dto);
-        ChannelResponse infoDto = new ChannelResponse(c.getId(), c.getName(), c.getDescription(), ChannelType.PUBLIC, c.getUpdatedAt(), null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(infoDto);
-    }
+  @RequestMapping(value = "/public", method = RequestMethod.POST)
+  public ResponseEntity<ChannelResponse> createPublic(@RequestBody PublicChannelCreateRequest dto) {
+    Channel c = channelService.createPublicChannel(dto);
+    ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
+        ChannelType.PUBLIC, c.getName(), c.getDescription());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
 
-    @RequestMapping(value = "/private", method = RequestMethod.POST)
-    public ResponseEntity<ChannelResponse> createPrivate(@RequestBody PrivateChannelCreateRequest dto) {
-        Channel c = channelService.createPrivateChannel(dto);
-        ChannelResponse infoDto = new ChannelResponse(c.getId(), c.getName(), c.getDescription(), ChannelType.PRIVATE, c.getUpdatedAt(), dto.users());
-        return ResponseEntity.status(HttpStatus.CREATED).body(infoDto);
-    }
+  @PostMapping("/private")
+  public ResponseEntity<ChannelResponse> createPrivate(
+      @RequestBody PrivateChannelCreateRequest dto) {
+    Channel c = channelService.createPrivateChannel(dto);
+    ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
+        ChannelType.PRIVATE, c.getName(), c.getDescription());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<ChannelResponse> update(@PathVariable UUID id,
-                                                  @RequestBody ChannelUpdateRequest dto) {
-        Channel c = channelService.update(id, dto);
-        List<UUID> userIds = channelService.getUserIds(c.getId());
-        ChannelResponse infoDto = new ChannelResponse(c.getId(), c.getName(), c.getDescription(), c.getType(), c.getUpdatedAt(), userIds);
-        return ResponseEntity.ok(infoDto);
+  @PatchMapping("/{channelId}")
+  public ResponseEntity<ChannelResponse> update(@PathVariable UUID channelId,
+      @RequestBody PublicChannelUpdateRequest dto) {
+    Channel c = channelService.update(channelId, dto);
+    ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
+        c.getType(), c.getName(), c.getDescription());
+    return ResponseEntity.ok(response);
 
-    }
+  }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        channelService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{channelId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
+    channelService.delete(channelId);
+    return ResponseEntity.noContent().build();
+  }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<ChannelResponse>> findAll(@RequestParam("userId") UUID userId) {
-        List<ChannelResponse> channelResponseList = channelService.findAllByUserId(userId);
-        return ResponseEntity.ok(channelResponseList);
-    }
+  @GetMapping
+  public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
+    List<ChannelDto> channelDtoList = channelService.findAllByUserId(userId);
+    return ResponseEntity.ok(channelDtoList);
+  }
 }

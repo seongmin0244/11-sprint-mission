@@ -11,40 +11,40 @@ import java.util.UUID;
 @Getter
 public class Message implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
 
-    private UUID userId;
-    private UUID channelId;
-    private String content;
-    private List<UUID> attachmentIds;
+  private UUID authorId;
+  private UUID channelId;
+  private String content;
+  private List<UUID> attachmentIds;
 
-    public Message(UUID userId, UUID channelId, String content, List<UUID> attachmentIds) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+  public Message(UUID authorId, UUID channelId, String content, List<UUID> attachmentIds) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    this.updatedAt = Instant.now();
 
-        this.userId = userId;
-        this.channelId = channelId;
-        this.content = content;
-        this.attachmentIds = attachmentIds;
-    }
+    this.authorId = authorId;
+    this.channelId = channelId;
+    this.content = content;
+    this.attachmentIds = attachmentIds;
+  }
 
-    public void update(String content) {
-        this.content = content;
-        updatedAt = Instant.now();
-    }
+  public void update(String content) {
+    this.content = content;
+    updatedAt = Instant.now();
+  }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "content='" + content + '\'' +
-                ", userName='" + userId + '\'' +
-                ", channelId='" + channelId + '\'' +
-                ", attachments='" + attachmentIds + '\'' +
-                "}";
-    }
+  @Override
+  public String toString() {
+    return "Message{" +
+        "content='" + content + '\'' +
+        ", userName='" + authorId + '\'' +
+        ", channelId='" + channelId + '\'' +
+        ", attachments='" + attachmentIds + '\'' +
+        "}";
+  }
 }

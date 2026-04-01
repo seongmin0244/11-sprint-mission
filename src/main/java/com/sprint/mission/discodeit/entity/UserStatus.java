@@ -10,39 +10,44 @@ import java.util.UUID;
 @Getter
 public class UserStatus implements Serializable {
 
-    private static final long SerialVersionUID = 1L;
+  private static final long SerialVersionUID = 1L;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
 
-    private UUID userId;
+  private UUID userId;
+  private Instant lastActiveAt;
 
-    public UserStatus(UUID userId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+  public UserStatus(UUID userId, Instant lastActiveAt) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    this.updatedAt = Instant.now();
 
-        this.userId = userId;
+    this.userId = userId;
+    this.lastActiveAt = lastActiveAt;
+  }
+
+  public void updateTime(Instant lastActiveAt) {
+    if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+      this.lastActiveAt = lastActiveAt;
+      this.updatedAt = Instant.now();
     }
+  }
 
-    public void updateTime() {
-        updatedAt = Instant.now();
-    }
+  public boolean isOnline() {
+    Instant lastTime = this.updatedAt;
+    Instant fiveMinutesAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
 
-    public boolean isOnline() {
-        Instant lastTime = this.updatedAt;
-        Instant fiveMinutesAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
+    return lastTime.isAfter(fiveMinutesAgo);
+  }
 
-        return lastTime.isAfter(fiveMinutesAgo);
-    }
-
-    @Override
-    public String toString() {
-        return "UserStatus{" +
-                "userId='" + userId + '\'' +
-                ", updateTime='" + updatedAt + '\'' +
-                ", isOnline='" + isOnline() + '\'' +
-                "}";
-    }
+  @Override
+  public String toString() {
+    return "UserStatus{" +
+        "userId='" + userId + '\'' +
+        ", updateTime='" + updatedAt + '\'' +
+        ", isOnline='" + isOnline() + '\'' +
+        "}";
+  }
 }
