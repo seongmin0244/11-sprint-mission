@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.FileLockProvider;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import java.nio.channels.FileLock;
 import java.nio.file.Path;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;

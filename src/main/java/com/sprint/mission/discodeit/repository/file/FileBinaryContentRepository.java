@@ -26,25 +26,13 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
   private static final String FILE_PATH = "binaryContent.ser";
   private static final Path PATH = Paths.get(FILE_PATH);
 
-    private Map<UUID, BinaryContent> load() {
-        if (Files.exists(Path.of(FILE_PATH))) {
-            try (
-                    FileInputStream fis = new FileInputStream(FILE_PATH);
-                    ObjectInputStream ois = new ObjectInputStream(fis)
-            ) {
-                return (Map<UUID, BinaryContent>) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException("파일에서 BinaryContent 불러오기 실패", e);
-            }
-        }
-        return new HashMap<>();
-    }
   private ReentrantLock getFileLock() {
     return fileLockProvider.getLock(PATH);
   }
 
   @SuppressWarnings("unchecked")
   private Map<UUID, BinaryContent> load() {
+    ReentrantLock lock = getFileLock();
     lock.lock();
     try {
       if (!Files.exists(PATH)) {
