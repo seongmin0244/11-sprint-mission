@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class UserController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserResponse> create(
+      @Valid
       @RequestPart("userCreateRequest") UserCreateRequest dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
@@ -54,7 +56,7 @@ public class UserController {
   }
 
   @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserResponse> update(@PathVariable UUID userId,
+  public ResponseEntity<UserResponse> update(@Valid @PathVariable UUID userId,
       @RequestPart("userUpdateRequest") UserUpdateRequest dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
@@ -88,7 +90,7 @@ public class UserController {
   }
 
   @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatus> updateStatus(@PathVariable UUID userId,
+  public ResponseEntity<UserStatus> updateStatus(@Valid @PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest dto) {
     UserStatus userStatus = userStatusService.update(userId, dto);
     return ResponseEntity.ok(userStatus);

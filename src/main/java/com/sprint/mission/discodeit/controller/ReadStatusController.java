@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,13 @@ public class ReadStatusController {
   private final ReadStatusService readStatusService;
 
   @PostMapping
-  public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest dto) {
+  public ResponseEntity<ReadStatus> create(@Valid @RequestBody ReadStatusCreateRequest dto) {
     ReadStatus rs = readStatusService.create(dto);
     return ResponseEntity.status(HttpStatus.CREATED).body(rs);
   }
 
   @PatchMapping("/{readStatusId}")
-  public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
+  public ResponseEntity<ReadStatus> update(@Valid @PathVariable UUID readStatusId,
       @RequestBody ReadStatusUpdateRequest dto) {
     ReadStatus rs = readStatusService.update(readStatusId, dto);
     return ResponseEntity.ok(rs);

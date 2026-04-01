@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class MessageController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageResponse> create(
+      @Valid
       @RequestPart("messageCreateRequest") MessageCreateRequest dto,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
@@ -52,7 +54,7 @@ public class MessageController {
   }
 
   @PatchMapping("/{messageId}")
-  public ResponseEntity<MessageResponse> update(@PathVariable UUID messageId,
+  public ResponseEntity<MessageResponse> update(@Valid @PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest dto) {
     MessageResponse messageResponse = messageService.update(messageId, dto);
     return ResponseEntity.ok(messageResponse);

@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,9 @@ public class ChannelController {
 
   private final ChannelService channelService;
 
-  @RequestMapping(value = "/public", method = RequestMethod.POST)
-  public ResponseEntity<ChannelResponse> createPublic(@RequestBody PublicChannelCreateRequest dto) {
+  @PostMapping("/public")
+  public ResponseEntity<ChannelResponse> createPublic(
+      @Valid @RequestBody PublicChannelCreateRequest dto) {
     Channel c = channelService.createPublicChannel(dto);
     ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
         ChannelType.PUBLIC, c.getName(), c.getDescription());
@@ -33,7 +35,7 @@ public class ChannelController {
 
   @PostMapping("/private")
   public ResponseEntity<ChannelResponse> createPrivate(
-      @RequestBody PrivateChannelCreateRequest dto) {
+      @Valid @RequestBody PrivateChannelCreateRequest dto) {
     Channel c = channelService.createPrivateChannel(dto);
     ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
         ChannelType.PRIVATE, c.getName(), c.getDescription());
@@ -41,7 +43,7 @@ public class ChannelController {
   }
 
   @PatchMapping("/{channelId}")
-  public ResponseEntity<ChannelResponse> update(@PathVariable UUID channelId,
+  public ResponseEntity<ChannelResponse> update(@Valid @PathVariable UUID channelId,
       @RequestBody PublicChannelUpdateRequest dto) {
     Channel c = channelService.update(channelId, dto);
     ChannelResponse response = new ChannelResponse(c.getId(), c.getCreatedAt(), c.getUpdatedAt(),
