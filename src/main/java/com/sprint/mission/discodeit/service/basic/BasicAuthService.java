@@ -4,25 +4,27 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
-  private final UserStatusRepository userStatusRepository;
+  private final UserMapper userMapper;
 
   @Override
   public UserDto login(LoginRequest dto) {
     // dto에서 가져온 이름으로 찾은 유저가 있다면, 유저 비밀번호와 일치하는지 확인
-    User user = userRepository.findByName(dto.username())
+    User user = userRepository.findByUsername(dto.username())
         .orElseThrow(
             () -> new NoSuchElementException(
                 "User with username " + dto.username() + " not found"));
@@ -31,14 +33,10 @@ public class BasicAuthService implements AuthService {
       throw new IllegalArgumentException("Wrong password");
     }
 
-    UserStatus status = userStatusRepository.findByUserId(user.getId())
-        .orElseThrow(
-            () -> new NoSuchElementException("User status not found for user: " + user.getName()));
+    UserStatus status = user.getStatus();
 
     status.updateTime(Instant.now());
-    userStatusRepository.save(status); // 파일 시스템이므로 저장해 주어야 함
 
-    return new UserDto(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), user.getName(),
-        user.getEmail(), user.getProfileId(), status.isOnline());
+    return userMapper.toDto(user);
   }
 }

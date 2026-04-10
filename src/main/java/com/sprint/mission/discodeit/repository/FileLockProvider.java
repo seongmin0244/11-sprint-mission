@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @Component
 public class FileLockProvider {
 

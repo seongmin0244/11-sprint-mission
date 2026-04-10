@@ -1,49 +1,57 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
-
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+@Entity
+@Table(name = "messages")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Message implements Serializable {
+public class Message extends BaseUpdatableEntity {
 
-  private static final long serialVersionUID = 1L;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id")
+  @OnDelete(action = OnDeleteAction.SET_NULL)
+  private User author;
 
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private Channel channel;
 
-  private UUID authorId;
-  private UUID channelId;
+  @Column(columnDefinition = "text")
   private String content;
-  private List<UUID> attachmentIds;
 
-  public Message(UUID authorId, UUID channelId, String content, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    this.updatedAt = Instant.now();
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id", nullable = false),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id", nullable = false)
+  )
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private List<BinaryContent> attachments;
 
-    this.authorId = authorId;
-    this.channelId = channelId;
+  public Message(User author, Channel channel, String content, List<BinaryContent> attachments) {
+    this.author = author;
+    this.channel = channel;
     this.content = content;
-    this.attachmentIds = attachmentIds;
+    this.attachments = attachments;
   }
 
   public void update(String content) {
     this.content = content;
-    updatedAt = Instant.now();
-  }
-
-  @Override
-  public String toString() {
-    return "Message{" +
-        "content='" + content + '\'' +
-        ", userName='" + authorId + '\'' +
-        ", channelId='" + channelId + '\'' +
-        ", attachments='" + attachmentIds + '\'' +
-        "}";
   }
 }

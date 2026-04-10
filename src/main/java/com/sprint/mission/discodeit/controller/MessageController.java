@@ -2,11 +2,8 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +30,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class MessageController {
 
   private final MessageService messageService;
-  private final BinaryContentService binaryContentService;
 
   @Operation(summary = "Message 생성", operationId = "create_2")
   @ApiResponses(value = {
@@ -42,25 +37,22 @@ public class MessageController {
       @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨")
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageResponse> create(
+  public ResponseEntity<MessageDto> create(
       @Valid
       @RequestPart("messageCreateRequest") MessageCreateRequest dto,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
-    List<UUID> attachmentIds = Optional.ofNullable(attachments)
-        .orElseGet(Collections::emptyList)
-        .stream()
-        .map(this::resolveAttachmentRequest) // 파일을 Optional로 감싸진 DTO 상자로 변환
-        .flatMap(Optional::stream) // 텅 빈 상자(빈 파일)는 버리고 알맹이만 다음으로 넘김
-        .map(binaryContentService::create)
-        .map(BinaryContent::getId)
-        .toList();
+    List<BinaryContentCreateRequest> attachmentsRequest = List.of();
+    if (attachments != null && !attachments.isEmpty()) {
+      attachmentsRequest = attachments.stream()
+          .map(this::resolveAttachmentRequest)
+          .flatMap(Optional::stream)
+          .toList();
+    }
 
-    Message m = messageService.create(dto, attachmentIds);
+    MessageDto messageDto = messageService.create(dto, attachmentsRequest);
 
-    MessageResponse messageResponse = new MessageResponse(m.getId(), m.getAuthorId(),
-        m.getChannelId(), m.getContent(), m.getAttachmentIds(), m.getCreatedAt());
-    return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
+    return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
   }
 
   @Operation(summary = "Message 내용 수정", operationId = "update_2")
@@ -69,10 +61,18 @@ public class MessageController {
       @ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음")
   })
   @PatchMapping("/{messageId}")
-  public ResponseEntity<MessageResponse> update(@Valid @PathVariable UUID messageId,
+  public ResponseEntity<MessageDto> update(@Valid @PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest dto) {
-    MessageResponse messageResponse = messageService.update(messageId, dto);
-    return ResponseEntity.ok(messageResponse);
+    MessageDto messageDto = messageService.update(messageId, dto);
+    return ResponseEntity.ok(messageDto);
+  }
+
+  @Operation(summary = "Channel의 Message 목록 조회", operationId = "findAllByChannelId")
+  @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
+  @GetMapping
+  public ResponseEntity<List<MessageDto>> findAll(@RequestParam("channelId") UUID channelId) {
+    List<MessageDto> messageDtoList = messageService.findAllByChannelId(channelId);
+    return ResponseEntity.ok(messageDtoList);
   }
 
   @Operation(summary = "Message 삭제", operationId = "delete_1")
@@ -86,16 +86,8 @@ public class MessageController {
     return ResponseEntity.noContent().build();
   }
 
-  @Operation(summary = "Channel의 Message 목록 조회", operationId = "findAllByChannelId")
-  @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
-  @GetMapping
-  public ResponseEntity<List<MessageResponse>> findAll(@RequestParam("channelId") UUID channelId) {
-    List<MessageResponse> messageResponseList = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.ok(messageResponseList);
-  }
-
   private Optional<BinaryContentCreateRequest> resolveAttachmentRequest(MultipartFile attachment) {
-    if (attachment.isEmpty()) {
+    if (attachment == null || attachment.isEmpty()) {
       return Optional.empty();
     } else {
       try {

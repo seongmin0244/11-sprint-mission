@@ -3,13 +3,9 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,8 +34,6 @@ public class UserController {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
-  private final BinaryContentService binaryContentService;
-
 
   @Operation(summary = "User 등록", operationId = "create")
   @ApiResponses(value = {
@@ -47,22 +41,14 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함")
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserResponse> create(
+  public ResponseEntity<UserDto> create(
       @Valid
       @RequestPart("userCreateRequest") UserCreateRequest dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    UUID profileId = Optional.ofNullable(profile)
-        .flatMap(this::resolveProfileRequest)
-        .map(binaryContentService::create)
-        .map(BinaryContent::getId)
-        .orElse(null);
+    UserDto userDto = userService.create(dto, resolveProfileRequest(profile));
 
-    User u = userService.create(dto, profileId);
-
-    UserResponse response = new UserResponse(u.getId(), u.getCreatedAt(), u.getUpdatedAt(),
-        u.getName(), u.getEmail(), u.getPassword(), u.getProfileId());
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
 
   @Operation(summary = "User 정보 수정", operationId = "update")
@@ -72,22 +58,13 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "User를 찾을 수 없음")
   })
   @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<UserResponse> update(@Valid @PathVariable UUID userId,
+  public ResponseEntity<UserDto> update(@Valid @PathVariable UUID userId,
       @RequestPart("userUpdateRequest") UserUpdateRequest dto,
       @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
-    UUID profileId = Optional.ofNullable(profile)
-        .flatMap(this::resolveProfileRequest)
-        .map(binaryContentService::create)
-        .map(BinaryContent::getId)
-        .orElse(null);
+    UserDto userDto = userService.update(userId, dto, resolveProfileRequest(profile));
 
-    User u = userService.update(userId, dto, profileId);
-
-    UserResponse response = new UserResponse(u.getId(), u.getCreatedAt(), u.getUpdatedAt(),
-        u.getName(), u.getEmail(), u.getPassword(), u.getProfileId());
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(userDto);
 
   }
 
@@ -118,15 +95,15 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "해당 User의 UserStatus를 찾을 수 없음")
   })
   @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatus> updateStatus(@Valid @PathVariable UUID userId,
+  public ResponseEntity<UserStatusDto> updateStatus(@Valid @PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest dto) {
-    UserStatus userStatus = userStatusService.update(userId, dto);
-    return ResponseEntity.ok(userStatus);
+    UserStatusDto userStatusDto = userStatusService.update(userId, dto);
+    return ResponseEntity.ok(userStatusDto);
   }
 
   // create()에서 파일을 받아 BinaryContentCreateRequest에 담아주는 메서드
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile multipartFile) {
-    if (multipartFile.isEmpty()) {
+    if (multipartFile == null || multipartFile.isEmpty()) {
       return Optional.empty();
     } else {
       try {

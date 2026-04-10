@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import java.time.Instant;
 import java.util.UUID;
 
+@Deprecated
 public record ChannelResponse(
     UUID id,
     Instant createdAt,
