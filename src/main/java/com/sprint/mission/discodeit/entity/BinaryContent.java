@@ -9,12 +9,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "binary_content")
+@Table(name = "binary_contents")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class BinaryContent extends BaseEntity {
 
-  @Column(nullable = false, length = 255)
+  @Column(nullable = false)
   private String fileName;
 
   @Column(nullable = false)
