@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -70,9 +71,10 @@ public class MessageController {
   @Operation(summary = "Channel의 Message 목록 조회", operationId = "findAllByChannelId")
   @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
   @GetMapping
-  public ResponseEntity<List<MessageDto>> findAll(@RequestParam("channelId") UUID channelId) {
-    List<MessageDto> messageDtoList = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.ok(messageDtoList);
+  public ResponseEntity<PageResponse<MessageDto>> findAll(@RequestParam("channelId") UUID channelId,
+      @RequestParam(value = "page", defaultValue = "0") int page) {
+    PageResponse<MessageDto> response = messageService.findAllByChannelId(channelId, page);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(summary = "Message 삭제", operationId = "delete_1")
