@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,33 +32,35 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final UserStatusRepository userStatusRepository;
   private final UserMapper userMapper;
+  private final BinaryContentStorage binaryContentStorage;
 
 
   @Override
-  public UserDto create(UserCreateRequest dto,
-      Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-    if (userRepository.existsByUsernameOrEmail(dto.username(), dto.email())) {
+  public UserDto create(UserCreateRequest userDto,
+      Optional<BinaryContentCreateRequest> binaryContentDto) {
+    if (userRepository.existsByUsernameOrEmail(userDto.username(), userDto.email())) {
       throw new IllegalArgumentException(
-          "User with email " + dto.email() + " or username " + dto.username() + " already exists"
+          "User with email " + userDto.email() + " or username " + userDto.username()
+              + " already exists"
       );
     }
 
     BinaryContent profile = null;
-    if (binaryContentCreateRequest.isPresent()) {
-      BinaryContentCreateRequest profileRequest = binaryContentCreateRequest.get();
+    if (binaryContentDto.isPresent()) {
+      BinaryContentCreateRequest profileRequest = binaryContentDto.get();
       profile = new BinaryContent(profileRequest.fileName(), (long) profileRequest.bytes().length,
-          profileRequest.contentType(),
-          profileRequest.bytes());
+          profileRequest.contentType());
       profile = binaryContentRepository.save(profile);
+      binaryContentStorage.put(profile.getId(), binaryContentDto.get().bytes());
     }
 
-    User user = new User(dto.username(), dto.email(), dto.password(), profile);
-    User savedUser = userRepository.save(user);
+    User user = new User(userDto.username(), userDto.email(), userDto.password(), profile);
+    user = userRepository.save(user);
 
     UserStatus status = new UserStatus(user, Instant.now());
     userStatusRepository.save(status);
 
-    return userMapper.toDto(savedUser);
+    return userMapper.toDto(user);
   }
 
   @Override
@@ -76,34 +79,34 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto update(UUID userId, UserUpdateRequest dto,
-      Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+  public UserDto update(UUID userId, UserUpdateRequest userDto,
+      Optional<BinaryContentCreateRequest> binaryContentDto) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
     // 새로 받은 정보가 나를 제외하고, 다른 객체의 이름 및 이메일과 다른지 검사
-    if (userRepository.existsByUsernameAndIdNot(dto.newUsername(), userId)
-        || userRepository.existsByEmailAndIdNot(dto.newEmail(), userId)) {
+    if (userRepository.existsByUsernameAndIdNot(userDto.newUsername(), userId)
+        || userRepository.existsByEmailAndIdNot(userDto.newEmail(), userId)) {
       throw new IllegalArgumentException(
-          "User with email " + dto.newEmail() + " or username " + dto.newUsername()
+          "User with email " + userDto.newEmail() + " or username " + userDto.newUsername()
               + " already exists");
     }
 
     BinaryContent profile = user.getProfile();
-    if (binaryContentCreateRequest.isPresent()) {
+    if (binaryContentDto.isPresent()) {
 
       if (user.getProfile() != null) {
         binaryContentRepository.delete(user.getProfile());
       }
 
-      BinaryContentCreateRequest profileRequest = binaryContentCreateRequest.get();
+      BinaryContentCreateRequest profileRequest = binaryContentDto.get();
       profile = new BinaryContent(profileRequest.fileName(), (long) profileRequest.bytes().length,
-          profileRequest.contentType(),
-          profileRequest.bytes());
+          profileRequest.contentType());
       profile = binaryContentRepository.save(profile);
+      binaryContentStorage.put(profile.getId(), binaryContentDto.get().bytes());
     }
 
-    user.update(dto.newUsername(), dto.newEmail(), dto.newPassword(), profile);
+    user.update(userDto.newUsername(), userDto.newEmail(), userDto.newPassword(), profile);
 
     return userMapper.toDto(user);
   }

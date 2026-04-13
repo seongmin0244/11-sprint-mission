@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Operation(summary = "첨부 파일 조회", operationId = "find")
   @ApiResponses(value = {
@@ -40,5 +42,16 @@ public class BinaryContentController {
     List<BinaryContentDto> binaryContentDtoList = binaryContentService.findAllByIdIn(
         binaryContentIds);
     return ResponseEntity.ok(binaryContentDtoList);
+  }
+
+  @Operation(summary = "파일 다운로드", operationId = "download")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "파일 다운로드 성공"),
+      @ApiResponse(responseCode = "404", description = "파일을 찾을 수 없음")
+  })
+  @GetMapping("/{binaryContentId}/download")
+  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
+    BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
+    return binaryContentStorage.download(binaryContentDto);
   }
 }

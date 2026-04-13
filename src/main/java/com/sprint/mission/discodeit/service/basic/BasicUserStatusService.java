@@ -37,9 +37,9 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     UserStatus userStatus = new UserStatus(user, dto.lastActiveAt());
-    UserStatus savedUserStatus = userStatusRepository.save(userStatus);
+    userStatus = userStatusRepository.save(userStatus);
 
-    return userStatusMapper.toDto(savedUserStatus);
+    return userStatusMapper.toDto(userStatus);
   }
 
   @Override

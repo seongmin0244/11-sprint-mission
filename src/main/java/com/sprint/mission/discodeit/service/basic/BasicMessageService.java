@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +35,11 @@ public class BasicMessageService implements MessageService {
   private final ChannelRepository channelRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Override
   public MessageDto create(MessageCreateRequest dto,
-      List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+      List<BinaryContentCreateRequest> binaryContentDto) {
     User author = userRepository.findById(dto.authorId())
         .orElseThrow(
             () -> new NoSuchElementException(
@@ -46,14 +48,18 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> new NoSuchElementException(
             "Channel with id " + dto.channelId() + " does not exist"));
 
-    List<BinaryContent> attachments = binaryContentCreateRequests.stream()
+    List<BinaryContent> attachments = binaryContentDto.stream()
         .map(request -> new BinaryContent(request.fileName(),
-            (long) request.bytes().length, request.contentType(), request.bytes()))
+            (long) request.bytes().length, request.contentType()))
         .toList();
 
-    List<BinaryContent> savedAttachments = binaryContentRepository.saveAll(attachments);
+    attachments = binaryContentRepository.saveAll(attachments);
 
-    Message message = new Message(author, channel, dto.content(), savedAttachments);
+    for (int i = 0; i < attachments.size(); i++) {
+      binaryContentStorage.put(attachments.get(i).getId(), binaryContentDto.get(i).bytes());
+    }
+
+    Message message = new Message(author, channel, dto.content(), attachments);
     messageRepository.save(message);
 
     UserStatus status = author.getStatus();

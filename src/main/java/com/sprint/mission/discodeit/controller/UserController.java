@@ -102,6 +102,7 @@ public class UserController {
   }
 
   // create()에서 파일을 받아 BinaryContentCreateRequest에 담아주는 메서드
+  // Optional 말고 @Nullable 사용 고려
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile multipartFile) {
     if (multipartFile == null || multipartFile.isEmpty()) {
       return Optional.empty();

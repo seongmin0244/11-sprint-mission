@@ -30,6 +30,7 @@ public class BasicReadStatusService implements
   private final ChannelRepository channelRepository;
   private final ReadStatusMapper readStatusMapper;
 
+
   @Override
   public ReadStatusDto create(ReadStatusCreateRequest dto) {
     User user = userRepository.findById(dto.userId())
@@ -46,9 +47,9 @@ public class BasicReadStatusService implements
     }
 
     ReadStatus readStatus = new ReadStatus(user, channel, Instant.now());
-    ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
+    readStatus = readStatusRepository.save(readStatus);
 
-    return readStatusMapper.toDto(savedReadStatus);
+    return readStatusMapper.toDto(readStatus);
   }
 
   @Override

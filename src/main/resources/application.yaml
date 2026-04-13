@@ -22,3 +22,9 @@ spring:
       hibernate:
         format_sql: true
         highlight_sql: true
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./uploads
