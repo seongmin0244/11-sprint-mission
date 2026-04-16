@@ -19,7 +19,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
@@ -28,6 +28,7 @@ public class BasicChannelService implements ChannelService {
   private final ChannelMapper channelMapper;
 
   @Override
+  @Transactional
   public ChannelDto createPublicChannel(PublicChannelCreateRequest dto) {
     Channel channel = new Channel(dto.name(), dto.description(), ChannelType.PUBLIC);
     channel = channelRepository.save(channel);
@@ -35,6 +36,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional
   public ChannelDto createPrivateChannel(PrivateChannelCreateRequest dto) {
     if (dto.participantIds() == null || dto.participantIds().size() < 2) {
       throw new IllegalArgumentException(
@@ -88,6 +90,7 @@ public class BasicChannelService implements ChannelService {
 //  }
 
   @Override
+  @Transactional
   public ChannelDto update(UUID id, PublicChannelUpdateRequest dto) {
     Channel channel = channelRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
@@ -99,10 +102,12 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     Channel channel = channelRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
-    channelRepository.deleteById(channel.getId());
+
+    channelRepository.delete(channel);
   }
 
 }

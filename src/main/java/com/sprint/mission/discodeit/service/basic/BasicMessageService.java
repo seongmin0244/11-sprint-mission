@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicMessageService implements MessageService {
 
   private final MessageRepository messageRepository;
@@ -44,6 +44,7 @@ public class BasicMessageService implements MessageService {
   private final PageResponseMapper pageResponseMapper;
 
   @Override
+  @Transactional
   public MessageDto create(MessageCreateRequest dto,
       List<BinaryContentCreateRequest> binaryContentDto) {
     User author = userRepository.findById(dto.authorId())
@@ -68,7 +69,7 @@ public class BasicMessageService implements MessageService {
     Message message = new Message(author, channel, dto.content(), attachments);
     messageRepository.save(message);
 
-    UserStatus status = author.getStatus();
+    UserStatus status = author.getUserStatus();
     status.updateTime(Instant.now());
 
     return messageMapper.toDto(message);
@@ -89,31 +90,28 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @Transactional
   public MessageDto update(UUID id, MessageUpdateRequest dto) {
     Message message = messageRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
 
     message.update(dto.newContent());
-    messageRepository.save(message);
 
-    UserStatus status = message.getAuthor().getStatus();
+    UserStatus status = message.getAuthor().getUserStatus();
     status.updateTime(Instant.now());
 
     return messageMapper.toDto(message);
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     Message message = messageRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
 
     if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
-      List<UUID> attachmentIds = message.getAttachments().stream()
-          .map(BinaryContent::getId)
-          .toList();
-
-      binaryContentRepository.deleteAllById(attachmentIds);
+      binaryContentRepository.deleteAll(message.getAttachments());
     }
-    messageRepository.deleteById(id);
+    messageRepository.delete(message);
   }
 }

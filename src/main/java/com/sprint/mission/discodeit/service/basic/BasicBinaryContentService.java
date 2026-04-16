@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
@@ -25,6 +25,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentStorage binaryContentStorage;
 
   @Override
+  @Transactional
   public BinaryContentDto create(BinaryContentCreateRequest dto) {
     if (dto.bytes() == null) {
       throw new IllegalArgumentException("File content is required");
@@ -62,11 +63,12 @@ public class BasicBinaryContentService implements BinaryContentService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
-    if (!binaryContentRepository.existsById(id)) {
-      throw new NoSuchElementException("BinaryContent with id " + id + " not found");
-    }
+    BinaryContent binaryContent = binaryContentRepository.findById(id)
+        .orElseThrow(
+            () -> new NoSuchElementException("BinaryContent with id " + id + " not found"));
 
-    binaryContentRepository.deleteById(id);
+    binaryContentRepository.delete(binaryContent);
   }
 }

@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.NoSuchElementException;
+import lombok.Locked.Read;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicReadStatusService implements
     com.sprint.mission.discodeit.service.ReadStatusService {
 
@@ -32,6 +33,7 @@ public class BasicReadStatusService implements
 
 
   @Override
+  @Transactional
   public ReadStatusDto create(ReadStatusCreateRequest dto) {
     User user = userRepository.findById(dto.userId())
         .orElseThrow(
@@ -73,6 +75,7 @@ public class BasicReadStatusService implements
 
   // 채팅방 읽음
   @Override
+  @Transactional
   public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest dto) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException(
@@ -84,11 +87,11 @@ public class BasicReadStatusService implements
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
-    if (!readStatusRepository.existsById(id)) {
-      throw new NoSuchElementException("ReadStatus with id " + id + " not found");
-    }
+    ReadStatus readStatus = readStatusRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
 
-    readStatusRepository.deleteById(id);
+    readStatusRepository.delete(readStatus);
   }
 }

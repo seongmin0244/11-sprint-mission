@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicUserStatusService implements UserStatusService {
 
   private final UserStatusRepository userStatusRepository;
@@ -27,6 +27,7 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusMapper userStatusMapper;
 
   @Override
+  @Transactional
   public UserStatusDto create(UserStatusCreateRequest dto) {
     User user = userRepository.findById(dto.userId())
         .orElseThrow(
@@ -63,6 +64,7 @@ public class BasicUserStatusService implements UserStatusService {
   }
 
   @Override
+  @Transactional
   public UserStatusDto update(UUID userId, UserStatusUpdateRequest dto) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(
@@ -83,11 +85,11 @@ public class BasicUserStatusService implements UserStatusService {
 //  }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
-    if (!userStatusRepository.existsById(id)) {
-      throw new NoSuchElementException("UserStatus with id " + id + " not found");
-    }
+    UserStatus userStatus = userStatusRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + id + " not found"));
 
-    userStatusRepository.deleteById(id);
+    userStatusRepository.delete(userStatus);
   }
 }

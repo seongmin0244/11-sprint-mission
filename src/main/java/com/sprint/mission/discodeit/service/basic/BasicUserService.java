@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
@@ -36,6 +36,7 @@ public class BasicUserService implements UserService {
 
 
   @Override
+  @Transactional
   public UserDto create(UserCreateRequest userDto,
       Optional<BinaryContentCreateRequest> binaryContentDto) {
     if (userRepository.existsByUsernameOrEmail(userDto.username(), userDto.email())) {
@@ -79,6 +80,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional
   public UserDto update(UUID userId, UserUpdateRequest userDto,
       Optional<BinaryContentCreateRequest> binaryContentDto) {
     User user = userRepository.findById(userId)
@@ -112,14 +114,11 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID id) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
 
-    if (user.getProfile() != null) {
-      binaryContentRepository.delete(user.getProfile());
-    }
-
-    userRepository.deleteById(id);
+    userRepository.delete(user);
   }
 }
