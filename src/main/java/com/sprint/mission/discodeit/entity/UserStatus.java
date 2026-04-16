@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class UserStatus extends BaseUpdatableEntity {
 
-  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false, unique = true)
   private User user;
 

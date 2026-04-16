@@ -21,7 +21,7 @@ import org.hibernate.annotations.OnDeleteAction;
     uniqueConstraints = {
         @UniqueConstraint(
             name = "uk_read_statuses_user_channel",
-            columnNames = {"user_id", "channel_id" }
+            columnNames = {"user_id", "channel_id"}
         )
     })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -69,7 +69,7 @@ public class BasicMessageService implements MessageService {
     Message message = new Message(author, channel, dto.content(), attachments);
     messageRepository.save(message);
 
-    UserStatus status = author.getUserStatus();
+    UserStatus status = author.getStatus();
     status.updateTime(Instant.now());
 
     return messageMapper.toDto(message);
@@ -97,7 +97,7 @@ public class BasicMessageService implements MessageService {
 
     message.update(dto.newContent());
 
-    UserStatus status = message.getAuthor().getUserStatus();
+    UserStatus status = message.getAuthor().getStatus();
     status.updateTime(Instant.now());
 
     return messageMapper.toDto(message);

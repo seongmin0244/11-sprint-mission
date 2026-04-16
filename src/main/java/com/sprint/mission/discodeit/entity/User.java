@@ -34,7 +34,8 @@ public class User extends BaseUpdatableEntity {
   @OnDelete(action = OnDeleteAction.SET_NULL)
   private BinaryContent profile;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  // UserState 엔티티의 user 필드가 FK를 가진 주인이라는 뜻
   private UserStatus status;
 
   public User(String username, String email, String password, BinaryContent profile) {
