@@ -16,12 +16,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         highlight_sql: true
+    open-in-view: false # OSIV 비활성화
+
+  web:
+    resources:
+      static-locations: classpath:/static/dist2/
 
 discodeit:
   storage:
