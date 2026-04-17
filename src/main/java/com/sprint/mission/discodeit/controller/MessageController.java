@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -72,8 +73,8 @@ public class MessageController {
   @ApiResponse(responseCode = "200", description = "Message 목록 조회 성공")
   @GetMapping
   public ResponseEntity<PageResponse<MessageDto>> findAll(@RequestParam("channelId") UUID channelId,
-      @RequestParam(value = "page", defaultValue = "0") int page) {
-    PageResponse<MessageDto> response = messageService.findAllByChannelId(channelId, page);
+      @RequestParam(value = "cursor", required = false) Instant cursor) {
+    PageResponse<MessageDto> response = messageService.findAllByChannelId(channelId, cursor);
     return ResponseEntity.ok(response);
   }
 

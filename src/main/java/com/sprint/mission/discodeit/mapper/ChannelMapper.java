@@ -25,7 +25,8 @@ public class ChannelMapper {
       return null;
     }
 
-    Instant lastMessageAt = messageRepository.findLatestMessageByChannelId(channel.getId())
+    Instant lastMessageAt = messageRepository.findFirstByChannelIdOrderByCreatedAtDesc(
+            channel.getId())
         .map(Message::getCreatedAt)
         .orElse(null);
 

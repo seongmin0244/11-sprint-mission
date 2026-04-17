@@ -75,18 +75,30 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
+  // 채팅방에 들어가서 위로 스크롤하면 예전 메시지가 계속 뜨는 로직
   @Override
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int page) {
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor) {
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
     }
 
-    Pageable pageable = PageRequest.of(page, 50);
-    Slice<Message> slice = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId,
-        pageable);
+    Pageable pageable = PageRequest.of(0, 50);
+
+    Slice<Message> slice;
+
+    if (cursor == null) {
+      // 처음엔 무조건 맨 처음부터 최신순으로 50개
+      slice = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId,
+          pageable);
+    } else {
+      // 커서(시간)보다 옛날 메시지를 최신순으로 50개
+      slice = messageRepository.findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc(channelId,
+          cursor, pageable);
+    }
+
     Slice<MessageDto> dtoSlice = slice.map(messageMapper::toDto);
 
-    return pageResponseMapper.fromSlice(dtoSlice);
+    return pageResponseMapper.fromSlice(dtoSlice, MessageDto::createdAt);
   }
 
   @Override
