@@ -47,7 +47,7 @@ public class MessageController {
     List<BinaryContentCreateRequest> attachmentsRequest = List.of();
     if (attachments != null && !attachments.isEmpty()) {
       attachmentsRequest = attachments.stream()
-          .map(this::resolveAttachmentRequest)
+          .map(BinaryContentCreateRequest::resolveAttachmentRequest)
           .flatMap(Optional::stream)
           .toList();
     }
@@ -87,23 +87,5 @@ public class MessageController {
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity.noContent().build();
-  }
-
-  private Optional<BinaryContentCreateRequest> resolveAttachmentRequest(MultipartFile attachment) {
-    if (attachment == null || attachment.isEmpty()) {
-      return Optional.empty();
-    } else {
-      try {
-        BinaryContentCreateRequest dto = new BinaryContentCreateRequest(
-            attachment.getOriginalFilename(),
-            attachment.getContentType(),
-            attachment.getBytes() // 예외처리 필수
-        );
-        return Optional.of(dto);
-      } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-            "Failed to process the uploaded file", e);
-      }
-    }
   }
 }
