@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Message;
 @Mapper(componentModel = "spring", uses = {UserMapper.class, BinaryContentMapper.class})
 public interface MessageMapper {
 
+  // "channel.id" = getChannel().getId()
   @Mapping(target = "channelId", source = "channel.id")
   MessageDto toDto(Message message);
 

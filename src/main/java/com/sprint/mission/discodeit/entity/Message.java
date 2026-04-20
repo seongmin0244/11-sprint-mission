@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -17,7 +18,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "messages")
+// 채널별로 폴더를 나누고 그 안에서 시간 순으로 정렬하도록 복합 인덱스를 걸음.
+@Table(name = "messages", indexes = {
+    @Index(name = "idx_channel_id_created_at", columnList = "channel_id, created_at")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Message extends BaseUpdatableEntity {
