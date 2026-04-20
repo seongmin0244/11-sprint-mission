@@ -1,36 +1,15 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import com.sprint.mission.discodeit.entity.Message;
-import java.util.List;
 
-@Component
-@RequiredArgsConstructor
-public class MessageMapper {
+@Mapper(componentModel = "spring", uses = {UserMapper.class, BinaryContentMapper.class})
+public interface MessageMapper {
 
-  private final BinaryContentMapper binaryContentMapper;
-  private final UserMapper userMapper;
+  @Mapping(target = "channelId", source = "channel.id")
+  MessageDto toDto(Message message);
 
-  public MessageDto toDto(Message message) {
-    if (message == null) {
-      return null;
-    }
-
-    List<BinaryContentDto> attachments = message.getAttachments().stream()
-        .map(binaryContentMapper::toDto)
-        .toList();
-
-    return new MessageDto(
-        message.getId(),
-        message.getCreatedAt(),
-        message.getUpdatedAt(),
-        userMapper.toDto(message.getAuthor()),
-        message.getChannel().getId(),
-        message.getContent(),
-        attachments
-    );
-  }
+  // author(User -> UserDto)와 attachments(List -> List)는 MapStruct가 uses에 등록된 매퍼들을 써서 알아서 변환해준다.
 }

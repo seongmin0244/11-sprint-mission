@@ -7,40 +7,38 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Instant;
 
+// 모범 답안을 참고하여 작성했습니다.
+@Mapper(componentModel = "spring", uses = UserMapper.class)
+public abstract class ChannelMapper {
 
-@Component
-@RequiredArgsConstructor
-public class ChannelMapper {
+  @Autowired
+  private MessageRepository messageRepository;
 
-  private final MessageRepository messageRepository;
-  private final ReadStatusRepository readStatusRepository;
-  private final UserMapper userMapper;
+  @Autowired
+  private ReadStatusRepository readStatusRepository;
 
-  public ChannelDto toDto(Channel channel) {
-    if (channel == null) {
-      return null;
-    }
+  @Autowired
+  private UserMapper userMapper;
 
-    Instant lastMessageAt = messageRepository.findFirstByChannelIdOrderByCreatedAtDesc(
+  @Mapping(target = "lastMessageAt", expression = "java(resolveLastMessageAt(channel))")
+  @Mapping(target = "participants", expression = "java(resolveParticipants(channel))")
+  abstract public ChannelDto toDto(Channel channel);
+
+  protected Instant resolveLastMessageAt(Channel channel) {
+    return messageRepository.findFirstByChannelIdOrderByCreatedAtDesc(
             channel.getId())
         .map(Message::getCreatedAt)
-        .orElse(null);
+        .orElse(Instant.MIN);
+  }
 
-    List<UserDto> participants = readStatusRepository.findAllByChannelId(channel.getId()).stream()
+  protected List<UserDto> resolveParticipants(Channel channel) {
+    return readStatusRepository.findAllByChannelId(channel.getId()).stream()
         .map(rs -> userMapper.toDto(rs.getUser()))
         .toList();
-
-    return new ChannelDto(
-        channel.getId(),
-        channel.getName(),
-        channel.getDescription(),
-        channel.getType(),
-        lastMessageAt,
-        participants
-    );
   }
 }
