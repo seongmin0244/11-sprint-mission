@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco' // 자바 테스트 커버리지 측정 도구
     id 'org.springframework.boot' version '3.5.11'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -22,6 +23,18 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+test {
+    finalizedBy jacocoTestReport // 테스트 후 자동으로 리포트 생성
+}
+
+jacocoTestReport {
+    dependsOn test // 리포트 생성 전 테스트를 먼저 실행하도록 순서 제어
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 dependencies {
