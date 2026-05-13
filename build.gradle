@@ -34,6 +34,9 @@ dependencies {
     // Actuator 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Admin client 의존성 추가
+    implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.5'
+
     // Database & ORM (데이터베이스 연동)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql' // PostgreSQL Driver: PostgreSQL과 통신하기 위한 드라이버
@@ -44,6 +47,7 @@ dependencies {
     // Code Generation (코드 자동 생성)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
     // 핵심: Lombok이 만든 코드를 MapStruct가 읽을 수 있게 연결
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 
@@ -52,7 +56,9 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
     // Testing (테스트)
+    testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
