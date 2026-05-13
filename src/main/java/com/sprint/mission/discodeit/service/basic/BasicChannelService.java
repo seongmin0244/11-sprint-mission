@@ -49,7 +49,6 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto createPrivateChannel(PrivateChannelCreateRequest dto) {
     log.debug("createPrivateChannel 시작 - 입력값: {}", dto);
     if (dto.participantIds() == null || dto.participantIds().size() < 2) {
-      // 커스텀 예외 만들고 로그 추가할 예정
       throw new InsufficientParticipantsException();
     }
     Channel channel = new Channel(null, null, ChannelType.PRIVATE);
