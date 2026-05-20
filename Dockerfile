@@ -1,19 +1,33 @@
-FROM amazoncorretto:17
+# Stage 1: Builder (빌드 전용)
+FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-# 소스 코드 전체 복사 (.dockerignore 파일 설정)
-COPY . .
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
 
-# Gradle Wrapper를 사용하여 애플리케이션 빌드 (테스트는 생략하여 빌드 속도 단축)
-RUN ./gradlew clean build -x test
+RUN chmod +x ./gradlew
 
-EXPOSE 80
+RUN ./gradlew dependencies --no-daemon || true
+
+COPY src src
+
+RUN ./gradlew bootJar -x test --no-daemon
+
+# Stage 2: Runtime (실제 배포용)
+FROM amazoncorretto:17-alpine
+
+WORKDIR /app
 
 ENV PROJECT_NAME=discodeit
 ENV PROJECT_VERSION=1.2-M8
 
 ENV JVM_OPTS=""
 
+COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./app.jar
+
+EXPOSE 80
+
 # 애플리케이션 실행 명령어 설정 (환경 변수를 읽기 위해 sh -c 사용)
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar app.jar"]
