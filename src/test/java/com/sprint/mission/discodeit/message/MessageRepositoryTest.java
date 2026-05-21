@@ -105,7 +105,8 @@ public class MessageRepositoryTest {
 
   @Test
   @DisplayName("특정 커서(시간) 이전의 메시지를 최신순으로 조회 성공 (커서 기반 페이지네이션)")
-  void findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc_success() {
+  void findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc_success()
+      throws InterruptedException {
     //given
     User user = new User("마크", "mark@test.com", "pass1234", null);
     userRepository.save(user);
@@ -115,6 +116,7 @@ public class MessageRepositoryTest {
 
     Message message1 = new Message(user, channel, "과거 메시지", null);
     messageRepository.save(message1);
+    Thread.sleep(20);
     Message message2 = new Message(user, channel, "최근 메시지", null);
     message2 = messageRepository.save(message2); // 커서에 시간을 할당하기 위해 원본 객체에 재할당 필수! (아니면 null로 찍힘)
 
