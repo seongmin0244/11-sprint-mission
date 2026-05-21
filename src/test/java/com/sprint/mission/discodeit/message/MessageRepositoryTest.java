@@ -104,7 +104,7 @@ public class MessageRepositoryTest {
   }
 
   @Test
-  @DisplayName("특정 커서(시간) 이전의 메사지를 최신순으로 조회 성공 (커서 기반 페이지네이션)")
+  @DisplayName("특정 커서(시간) 이전의 메시지를 최신순으로 조회 성공 (커서 기반 페이지네이션)")
   void findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc_success() {
     //given
     User user = new User("마크", "mark@test.com", "pass1234", null);
