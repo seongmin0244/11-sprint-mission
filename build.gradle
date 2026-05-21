@@ -1,0 +1,83 @@
+plugins {
+    id 'java'
+    id 'jacoco' // 자바 테스트 커버리지 측정 도구
+    id 'org.springframework.boot' version '3.5.11'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.sprint.mission'
+version = '1.2-M8' // 'api-doc버전'-미션8
+description = 'Discode project for Spring Boot'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    finalizedBy jacocoTestReport // 테스트 후 자동으로 리포트 생성
+}
+
+jacocoTestReport {
+    dependsOn test // 리포트 생성 전 테스트를 먼저 실행하도록 순서 제어
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+dependencies {
+    // Spring Boot Core & Web (핵심 기능)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 유효성 검사
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Actuator 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Admin client 의존성 추가
+    // implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.5'
+
+    // Database & ORM (데이터베이스 연동)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql' // PostgreSQL Driver: PostgreSQL과 통신하기 위한 드라이버
+
+    // API Documentation (문서화)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+    // Code Generation (코드 자동 생성)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    // 핵심: Lombok이 만든 코드를 MapStruct가 읽을 수 있게 연결
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+
+    // AWS S3 SDK
+    implementation 'software.amazon.awssdk:s3:2.31.7'
+
+    // 컴파일 시 코드 생성기 (반드시 Lombok -> Binding -> MapStruct 순서여야 함!)
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // Testing (테스트)
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
