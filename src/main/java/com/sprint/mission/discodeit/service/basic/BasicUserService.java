@@ -20,6 +20,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
   private final UserMapper userMapper;
   private final BinaryContentStorage binaryContentStorage;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   @Transactional
@@ -56,7 +58,8 @@ public class BasicUserService implements UserService {
       binaryContentStorage.put(profile.getId(), binaryContentDto.get().bytes());
     }
 
-    User user = new User(userDto.username(), userDto.email(), userDto.password(), profile);
+    String encodedPassword = passwordEncoder.encode(userDto.password());
+    User user = new User(userDto.username(), userDto.email(), encodedPassword, profile);
     user = userRepository.save(user);
 
     if (user.getProfile() == null) {
@@ -114,7 +117,8 @@ public class BasicUserService implements UserService {
       binaryContentStorage.put(profile.getId(), binaryContentDto.get().bytes());
     }
 
-    user.update(userDto.newUsername(), userDto.newEmail(), userDto.newPassword(), profile);
+    String encodedPassword = passwordEncoder.encode(userDto.newPassword());
+    user.update(userDto.newUsername(), userDto.newEmail(), encodedPassword, profile);
     log.info("사용자 수정 완료 - userId: {}", user.getId());
 
     return userMapper.toDto(user);
