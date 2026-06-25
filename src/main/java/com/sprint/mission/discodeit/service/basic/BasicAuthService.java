@@ -9,19 +9,21 @@ import com.sprint.mission.discodeit.security.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
   @Override
+  @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
   public UserDto updateRole(UserRoleUpdateRequest dto) {
     User user = userRepository.findById(dto.userId())
         .orElseThrow(() -> new UserNotFoundException(dto.userId()));
