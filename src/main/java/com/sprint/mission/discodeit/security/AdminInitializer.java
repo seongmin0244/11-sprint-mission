@@ -24,7 +24,7 @@ public class AdminInitializer implements ApplicationRunner {
   @Value("${admin.account.email}")
   private String adminEmail;
 
-  @Value("${admin.accont.password}")
+  @Value("${admin.account.password}")
   private String adminPassword;
 
   @Override
