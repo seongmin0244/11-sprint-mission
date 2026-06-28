@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -74,9 +73,6 @@ public class BasicMessageService implements MessageService {
     messageRepository.save(message);
     log.info("메시지 생성 완료 - messageId: {}, 첨부파일 수: {}", message.getId(), attachments.size());
 
-    UserStatus status = author.getStatus();
-    status.updateTime(Instant.now());
-
     return messageMapper.toDto(message);
   }
 
@@ -116,9 +112,6 @@ public class BasicMessageService implements MessageService {
 
     message.update(dto.newContent());
     log.info("메시지 수정 완료 - messageId: {}", message.getId());
-
-    UserStatus status = message.getAuthor().getStatus();
-    status.updateTime(Instant.now());
 
     return messageMapper.toDto(message);
   }
