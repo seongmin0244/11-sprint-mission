@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -81,6 +82,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @PreAuthorize("principal.userDto.id == #userId")
   public UserDto update(UUID userId, UserUpdateRequest userDto,
       Optional<BinaryContentCreateRequest> binaryContentDto) {
     log.debug("update 시작 - 입력값: {}, {}", userDto, binaryContentDto);
@@ -116,12 +118,13 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
-  public void delete(UUID id) {
-    log.debug("delete 시작 - 입력값: {}", id);
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException(id));
+  @PreAuthorize("principal.userDto.id == #userId")
+  public void delete(UUID userId) {
+    log.debug("delete 시작 - 입력값: {}", userId);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
 
     userRepository.delete(user);
-    log.info("사용자 삭제 완료 - userId: {}", id);
+    log.info("사용자 삭제 완료 - userId: {}", userId);
   }
 }
