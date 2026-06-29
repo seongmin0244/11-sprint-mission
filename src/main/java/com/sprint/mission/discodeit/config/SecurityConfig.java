@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,6 +34,9 @@ public class SecurityConfig {
 
   private final HandlerExceptionResolver exceptionResolver;
 
+  @Value("${security.remember-me.key}")
+  private String rememberMeKey;
+
   public SecurityConfig(
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.exceptionResolver = exceptionResolver;
@@ -39,39 +44,37 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filter(HttpSecurity http, LoginSuccessHandler successHandler,
-      LoginFailureHandler failureHandler, SessionRegistry sessionRegistry) throws Exception {
+      LoginFailureHandler failureHandler, SessionRegistry sessionRegistry,
+      UserDetailsService userDetailsService) throws Exception {
 
     http
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // csrf 보호 설정
-            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())); // 날 것의 토큰 처리
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())) // 날 것의 토큰 처리
 
-    http
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
             .usernameParameter("username")
             .passwordParameter("password")
             .successHandler(successHandler)
-            .failureHandler(failureHandler));
+            .failureHandler(failureHandler))
 
-    http
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
-                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)));
+                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)))
 
-    http
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/auth/logout").permitAll()
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swaggger-ui.html").permitAll()
+            .requestMatchers("/", "/assets/**", "/favicon.ico", "/index.html").permitAll()
             .requestMatchers("/actuator/**").permitAll()
             .requestMatchers("/error").permitAll()
-            .anyRequest().authenticated());
+            .anyRequest().authenticated())
 
-    http
         .exceptionHandling(ex -> ex
             // 로그인을 하지 않은 상태에서 접근한 경우 (401)
             .authenticationEntryPoint((request, response, authException) ->
@@ -79,14 +82,19 @@ public class SecurityConfig {
             // 경로에 대한 권한이 없을 경우 (403)
             .accessDeniedHandler(((request, response, accessDeniedException) ->
                 exceptionResolver.resolveException(request, response, null,
-                    accessDeniedException))));
+                    accessDeniedException))))
 
-    http
         .sessionManagement(management -> management
             .sessionConcurrency(concurrency -> concurrency
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry)));
+                .sessionRegistry(sessionRegistry)))
+
+        .rememberMe(rememberMe -> rememberMe
+            .rememberMeParameter("remember-me")
+            .tokenValiditySeconds(259200) // 3일로 설정
+            .key(rememberMeKey)
+            .userDetailsService(userDetailsService));
     return http.build();
   }
 
