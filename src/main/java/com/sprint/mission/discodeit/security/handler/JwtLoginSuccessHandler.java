@@ -39,7 +39,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
           .httpOnly(true)
           .path("/")
           //.secure(true)
-          .maxAge(jwtTokenProvider.getRefreshTokenExpiration())
+          .maxAge(jwtTokenProvider.getRefreshTokenExpiration() / 1000)
           .build();
 
       response.addHeader("Set-Cookie", responseCookie.toString());
@@ -50,7 +50,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
       JwtDto jwtDto = new JwtDto(userDetails.getUserDto(), accessToken);
       response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
     } catch (JOSEException e) {
-      // TODO: 커스텀 예외 작성
+      // TODO: 커스텀 예외 작성 (토큰 서명 시크릿 키 길이가 짧거나 서버 암호화 모듈이 고장 난 '서버측 인프라 에러(500)' 이다.
       throw new RuntimeException("토큰 발급 중 오류가 발생했습니다.");
     }
   }

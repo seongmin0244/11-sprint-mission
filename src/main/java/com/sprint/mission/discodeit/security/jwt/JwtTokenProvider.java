@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.sprint.mission.discodeit.exception.auth.RefreshTokenInvalidException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.text.ParseException;
 import java.time.Instant;
@@ -37,7 +38,7 @@ public class JwtTokenProvider {
 
   // 토큰 발급 ──────────────────────────────────────────────
   public String generateAccessToken(DiscodeitUserDetails userDetails) throws JOSEException {
-    String subject = userDetails.getUserDto().id().toString();
+    String subject = userDetails.getUsername();
 
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
         .subject(subject)
@@ -55,7 +56,7 @@ public class JwtTokenProvider {
   }
 
   public String generateRefreshToken(DiscodeitUserDetails userDetails) throws JOSEException {
-    String subject = userDetails.getUserDto().id().toString();
+    String subject = userDetails.getUsername();
 
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
         .subject(subject)
@@ -100,12 +101,11 @@ public class JwtTokenProvider {
     return signedJWT.getJWTClaimsSet().getSubject();
   }
 
-  // 토큰 갱신 ──────────────────────────────────────────────
+  // TODO: 토큰 갱신 (사용 안되고 있음) ──────────────────────────────────────────────
   public String reissueAccessToken(String refreshToken, DiscodeitUserDetails userDetails)
       throws JOSEException {
     if (!validateToken(refreshToken)) {
-      // TODO: 추후 커스텀 에러 코드로 변경
-      throw new IllegalArgumentException("유효하지 않거나 만료된 리프레시 토큰입니다.");
+      throw new RefreshTokenInvalidException();
     }
 
     return generateAccessToken(userDetails);
