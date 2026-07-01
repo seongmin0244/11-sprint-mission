@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -38,6 +42,7 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filter(HttpSecurity http,
+      JwtAuthenticationFilter jwtAuthenticationFilter,
       JwtLoginSuccessHandler jwtLoginsuccessHandler,
       LoginFailureHandler loginfailureHandler, UserDetailsService userDetailsService)
       throws Exception {
@@ -54,6 +59,8 @@ public class SecurityConfig {
             .successHandler(jwtLoginsuccessHandler)
             .failureHandler(loginfailureHandler))
 
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
@@ -64,6 +71,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/auth/logout").permitAll()
+            .requestMatchers("/api/auth/refresh").permitAll()
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swaggger-ui.html").permitAll()
             .requestMatchers("/", "/assets/**", "/favicon.ico", "/index.html").permitAll()
             .requestMatchers("/actuator/**").permitAll()
@@ -104,5 +112,12 @@ public class SecurityConfig {
     DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(hierarchy);
     return handler;
+  }
+
+  @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilter(
+      JwtTokenProvider jwtTokenProvider, DiscodeitUserDetailsService userDetailsService
+  ) {
+    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
   }
 }
