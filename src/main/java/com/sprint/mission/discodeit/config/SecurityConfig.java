@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,15 +15,13 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
@@ -34,18 +31,16 @@ public class SecurityConfig {
 
   private final HandlerExceptionResolver exceptionResolver;
 
-  @Value("${security.remember-me.key}")
-  private String rememberMeKey;
-
   public SecurityConfig(
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.exceptionResolver = exceptionResolver;
   }
 
   @Bean
-  public SecurityFilterChain filter(HttpSecurity http, LoginSuccessHandler successHandler,
-      LoginFailureHandler failureHandler, SessionRegistry sessionRegistry,
-      UserDetailsService userDetailsService) throws Exception {
+  public SecurityFilterChain filter(HttpSecurity http,
+      JwtLoginSuccessHandler jwtLoginsuccessHandler,
+      LoginFailureHandler loginfailureHandler, UserDetailsService userDetailsService)
+      throws Exception {
 
     http
         .csrf(csrf -> csrf
@@ -56,8 +51,8 @@ public class SecurityConfig {
             .loginProcessingUrl("/api/auth/login")
             .usernameParameter("username")
             .passwordParameter("password")
-            .successHandler(successHandler)
-            .failureHandler(failureHandler))
+            .successHandler(jwtLoginsuccessHandler)
+            .failureHandler(loginfailureHandler))
 
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
@@ -85,16 +80,9 @@ public class SecurityConfig {
                     accessDeniedException))))
 
         .sessionManagement(management -> management
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry)))
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
-        .rememberMe(rememberMe -> rememberMe
-            .rememberMeParameter("remember-me")
-            .tokenValiditySeconds(259200) // 3일로 설정
-            .key(rememberMeKey)
-            .userDetailsService(userDetailsService));
     return http.build();
   }
 
@@ -116,15 +104,5 @@ public class SecurityConfig {
     DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(hierarchy);
     return handler;
-  }
-
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
-  }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
   }
 }

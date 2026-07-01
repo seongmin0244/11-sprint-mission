@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ public class JwtTokenProvider {
 
   private final String secretKey;
   private final long accessTokenExpiration;
+  @Getter
   private final long refreshTokenExpiration;
 
   public JwtTokenProvider(@Value("${discodeit.jwt.secret}") String secretKey,
