@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,7 +44,8 @@ public class SecurityConfig {
   public SecurityFilterChain filter(HttpSecurity http,
       JwtAuthenticationFilter jwtAuthenticationFilter,
       JwtLoginSuccessHandler jwtLoginsuccessHandler,
-      LoginFailureHandler loginfailureHandler, UserDetailsService userDetailsService)
+      LoginFailureHandler loginfailureHandler,
+      JwtLogoutHandler jwtLogoutHandler)
       throws Exception {
 
     http
@@ -64,7 +65,8 @@ public class SecurityConfig {
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
-                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)))
+                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+            .addLogoutHandler(jwtLogoutHandler))
 
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
@@ -88,8 +90,7 @@ public class SecurityConfig {
                     accessDeniedException))))
 
         .sessionManagement(management -> management
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
     return http.build();
   }

@@ -51,7 +51,7 @@ public class AuthController {
       ResponseCookie responseCookie = ResponseCookie.from(
               JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken)
           .httpOnly(true)
-          .path("/") // 무슨 의미?
+          .path("/api/auth")
           .maxAge(jwtTokenProvider.getRefreshTokenExpiration()
               / 1000) // ResponseCookie의 maxAge()는 초(s) 단위로 받음
           .build();
