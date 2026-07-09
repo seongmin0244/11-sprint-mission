@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.exception.auth.RefreshTokenInvalidException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtDto;
+import com.sprint.mission.discodeit.security.jwt.JwtInformation;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +30,15 @@ public class AuthController {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final UserDetailsService userDetailsService;
-  // private final JwtRegistry jwtRegistry;
+  private final JwtRegistry jwtRegistry;
 
   // TODO: 비즈니스 로직은 BasicAuthService로 이동 고려
   @PostMapping("/refresh")
   public ResponseEntity<JwtDto> refresh(
       @CookieValue(name = JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
   ) {
-    if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+    if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)
+        || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
       throw new RefreshTokenInvalidException();
     }
 
@@ -47,6 +50,14 @@ public class AuthController {
 
       String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
       String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+      JwtInformation jwtInfo = new JwtInformation(
+          userDetails.getUserDto().id(),
+          newAccessToken,
+          newRefreshToken,
+          jwtTokenProvider.getExpiration(newRefreshToken)
+      );
+      jwtRegistry.rotateJwtInformation(refreshToken, jwtInfo);
 
       ResponseCookie responseCookie = ResponseCookie.from(
               JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken)
