@@ -75,7 +75,7 @@ public class SecurityConfig {
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/auth/logout").permitAll()
             .requestMatchers("/api/auth/refresh").permitAll()
-            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swaggger-ui.html").permitAll()
+            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swagger-ui.html").permitAll()
             .requestMatchers("/", "/assets/**", "/favicon.ico", "/index.html").permitAll()
             .requestMatchers("/actuator/**").permitAll()
             .requestMatchers("/error").permitAll()
@@ -103,10 +103,10 @@ public class SecurityConfig {
 
   @Bean
   public RoleHierarchy roleHierarchy() {
-    RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
-    hierarchy.setHierarchy("ROLE_ADMIN > ROLE_CHANNEL_MANAGER\n" +
-        "ROLE_CHANNEL_MANAGER > ROLE_USER");
-    return hierarchy;
+    return RoleHierarchyImpl.withDefaultRolePrefix()
+        .role("ADMIN").implies("CHANNEL_MANAGER")
+        .role("CHANNEL_MANAGER").implies("USER")
+        .build();
   }
 
   @Bean

@@ -52,7 +52,7 @@ public class BasicMessageService implements MessageService {
   @Transactional
   public MessageDto create(MessageCreateRequest dto,
       List<BinaryContentCreateRequest> binaryContentDto) {
-    log.debug("create 시작 - 입력값: {}, {}", dto, binaryContentDto);
+    log.debug("메시지 생성 시작 - 입력값: {}, {}", dto, binaryContentDto);
 
     User author = userRepository.findById(dto.authorId())
         .orElseThrow(
@@ -106,9 +106,9 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
-  @PostAuthorize("returnObject.author.id == principal.userDto.id")
+  @PreAuthorize("@messageSecurity.isAuthor(#id, principal.userDto.id)")
   public MessageDto update(UUID id, MessageUpdateRequest dto) {
-    log.debug("update 시작 - 입력값: {}", dto);
+    log.debug("메시지 수정 시작 - 입력값: {}", dto);
 
     Message message = messageRepository.findById(id)
         .orElseThrow(() -> new MessageNotFoundException(id));
@@ -123,18 +123,16 @@ public class BasicMessageService implements MessageService {
   @Transactional
   @PreAuthorize("@messageSecurity.isAuthor(#id, principal.userDto.id)")
   public void delete(UUID id) {
-    log.debug("delete 시작 - 입력값: {}", id);
+    log.debug("메시지 삭제 시작 - 입력값: {}", id);
 
-    // 메시지가 없을 경우 예외를 던지기 보다 멱등성을 보장하는 방향으로 구현
-    var messageOptional = messageRepository.findById(id);
+    Message message = messageRepository.findById(id)
+        .orElseThrow(() -> new MessageNotFoundException(id));
 
-    if (messageOptional.isPresent()) {
-      Message message = messageOptional.get();
-      if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
-        binaryContentRepository.deleteAll(message.getAttachments());
-      }
-      messageRepository.delete(message);
-      log.info("메시지 삭제 완료 - messageId: {}", message.getId());
+    if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+      binaryContentRepository.deleteAll(message.getAttachments());
     }
+
+    messageRepository.delete(message);
+    log.info("메시지 삭제 완료 - messageId: {}", message.getId());
   }
 }
