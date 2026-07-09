@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -117,8 +118,9 @@ public class SecurityConfig {
 
   @Bean
   public JwtAuthenticationFilter jwtAuthenticationFilter(
-      JwtTokenProvider jwtTokenProvider, DiscodeitUserDetailsService userDetailsService
+      JwtTokenProvider jwtTokenProvider, DiscodeitUserDetailsService userDetailsService,
+      JwtRegistry jwtRegistry
   ) {
-    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, jwtRegistry);
   }
 }
