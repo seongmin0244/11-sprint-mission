@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.exception.auth.RefreshTokenInvalidException;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtDto;
+import com.sprint.mission.discodeit.security.TokenRefreshResultDto;
 import com.sprint.mission.discodeit.security.UserRoleUpdateRequest;
-import com.sprint.mission.discodeit.security.jwt.JwtInformation;
-import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +30,6 @@ public class AuthController {
 
   private final AuthService authService;
   private final JwtTokenProvider jwtTokenProvider;
-  private final UserDetailsService userDetailsService;
-  private final JwtRegistry jwtRegistry;
 
   @PutMapping("/role")
   public ResponseEntity<UserDto> updateRole(
@@ -45,50 +39,25 @@ public class AuthController {
     return ResponseEntity.ok(userDto);
   }
 
-  // TODO: 비즈니스 로직은 BasicAuthService로 이동 고려
   @PostMapping("/refresh")
   public ResponseEntity<JwtDto> refresh(
       @CookieValue(name = JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
   ) {
-    if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)
-        || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-      throw new RefreshTokenInvalidException();
-    }
 
-    try {
-      String username = jwtTokenProvider.getSubject(refreshToken);
+    TokenRefreshResultDto refreshResultDto = authService.refreshToken(refreshToken);
 
-      DiscodeitUserDetails userDetails = (DiscodeitUserDetails) userDetailsService.loadUserByUsername(
-          username);
+    ResponseCookie responseCookie = ResponseCookie.from(
+            JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, refreshResultDto.newRefreshToken())
+        .httpOnly(true)
+        .path("/api/auth")
+        .maxAge(jwtTokenProvider.getRefreshTokenExpiration()
+            / 1000) // ResponseCookie의 maxAge()는 초(s) 단위로 받음
+        .build();
 
-      String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
-      String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-
-      JwtInformation jwtInfo = new JwtInformation(
-          userDetails.getUserDto().id(),
-          newAccessToken,
-          newRefreshToken,
-          jwtTokenProvider.getExpiration(newRefreshToken)
-      );
-      jwtRegistry.rotateJwtInformation(refreshToken, jwtInfo);
-
-      ResponseCookie responseCookie = ResponseCookie.from(
-              JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken)
-          .httpOnly(true)
-          .path("/api/auth")
-          .maxAge(jwtTokenProvider.getRefreshTokenExpiration()
-              / 1000) // ResponseCookie의 maxAge()는 초(s) 단위로 받음
-          .build();
-
-      JwtDto jwtDto = new JwtDto(userDetails.getUserDto(), newAccessToken);
-
-      return ResponseEntity.ok()
-          .header("Set-Cookie", responseCookie.toString())
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(jwtDto);
-    } catch (Exception e) {
-      throw new RefreshTokenInvalidException();
-    }
+    return ResponseEntity.ok()
+        .header("Set-Cookie", responseCookie.toString())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(refreshResultDto.jwtDto());
   }
 
   @GetMapping("/csrf-token")
