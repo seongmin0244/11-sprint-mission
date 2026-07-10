@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
@@ -118,9 +117,8 @@ public class SecurityConfig {
 
   @Bean
   public JwtAuthenticationFilter jwtAuthenticationFilter(
-      JwtTokenProvider jwtTokenProvider, DiscodeitUserDetailsService userDetailsService,
-      JwtRegistry jwtRegistry
+      JwtTokenProvider jwtTokenProvider, JwtRegistry jwtRegistry
   ) {
-    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, jwtRegistry);
+    return new JwtAuthenticationFilter(jwtTokenProvider, jwtRegistry);
   }
 }
