@@ -19,7 +19,7 @@ spring:
   # 정적 리소스(프론트엔드) 경로 설정
   web:
     resources:
-      static-locations: classpath:/static/dist5/
+      static-locations: classpath:/static/dist6/
 
 #  # admin 설정 (비활성화)
 #  boot:

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.1-M10' // 'api-doc버전'-미션10
+version = '2.2-M11' // 'api-doc버전'-미션11
 description = 'Discode project for Spring Boot'
 
 java {
