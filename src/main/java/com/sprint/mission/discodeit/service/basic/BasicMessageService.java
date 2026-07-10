@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -23,6 +24,7 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -44,8 +46,8 @@ public class BasicMessageService implements MessageService {
   private final ChannelRepository channelRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
-  private final BinaryContentStorage binaryContentStorage;
   private final PageResponseMapper pageResponseMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -67,7 +69,8 @@ public class BasicMessageService implements MessageService {
     attachments = binaryContentRepository.saveAll(attachments);
 
     for (int i = 0; i < attachments.size(); i++) {
-      binaryContentStorage.put(attachments.get(i).getId(), binaryContentDto.get(i).bytes());
+      eventPublisher.publishEvent(new BinaryContentCreatedEvent(attachments.get(i).getId(),
+          binaryContentDto.get(i).bytes()));
     }
 
     Message message = new Message(author, channel, dto.content(), attachments);
