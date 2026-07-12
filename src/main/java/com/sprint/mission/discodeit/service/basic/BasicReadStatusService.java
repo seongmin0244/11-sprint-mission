@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -14,6 +15,7 @@ import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BasicReadStatusService implements
-    com.sprint.mission.discodeit.service.ReadStatusService {
+public class BasicReadStatusService implements ReadStatusService {
 
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
@@ -48,7 +49,10 @@ public class BasicReadStatusService implements
       throw new ReadStatusAlreadyExistsException(user.getId(), channel.getId());
     }
 
-    ReadStatus readStatus = new ReadStatus(user, channel, Instant.now());
+    boolean initialNotificationEnabled = (channel.getType() == ChannelType.PRIVATE);
+
+    ReadStatus readStatus = new ReadStatus(user, channel, Instant.now(),
+        initialNotificationEnabled);
     readStatus = readStatusRepository.save(readStatus);
 
     return readStatusMapper.toDto(readStatus);

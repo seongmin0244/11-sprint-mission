@@ -53,15 +53,22 @@ public class BasicChannelService implements ChannelService {
     if (dto.participantIds() == null || dto.participantIds().size() < 2) {
       throw new InsufficientParticipantsException();
     }
+
     Channel channel = new Channel(null, null, ChannelType.PRIVATE);
     channelRepository.save(channel); // ReadStatus에 저장하기 전에 먼저 실행
 
-    dto.participantIds().forEach(id -> {
-      User user = userRepository.findById(id)
-          .orElseThrow(() -> new UserNotFoundException(id));
-      ReadStatus status = new ReadStatus(user, channel, Instant.now());
-      readStatusRepository.save(status);
-    });
+    List<User> participants = userRepository.findAllById(dto.participantIds());
+
+    if (participants.size() != dto.participantIds().size()) {
+      // TODO: 커스텀 예외 작성 고려
+      throw new IllegalArgumentException("요청한 유저 중 존재하지 않는 회원이 포함되어 있습니다.");
+    }
+
+    List<ReadStatus> readStatuses = participants.stream()
+        .map(user -> new ReadStatus(user, channel, Instant.now(), true))
+        .toList();
+
+    readStatusRepository.saveAll(readStatuses);
 
     log.info("프라이빗 채널 생성 완료 - channelId: {}", channel.getId());
     return channelMapper.toDto(channel);
