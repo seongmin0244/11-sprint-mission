@@ -85,6 +85,7 @@ public class BasicReadStatusService implements ReadStatusService {
         .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
 
     readStatus.updateLastReadAt(Instant.now());
+    // TODO: 알림 키고 끄는 기능 생성 시 readStatus.updateNotificationEnabled(true); 설정
 
     return readStatusMapper.toDto(readStatus);
   }
