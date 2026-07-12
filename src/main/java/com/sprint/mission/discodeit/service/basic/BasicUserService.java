@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -51,6 +51,7 @@ public class BasicUserService implements UserService {
       profile = new BinaryContent(profileRequest.fileName(), (long) profileRequest.bytes().length,
           profileRequest.contentType());
       profile = binaryContentRepository.save(profile);
+
       eventPublisher.publishEvent(
           new BinaryContentCreatedEvent(profile.getId(), profileRequest.bytes()));
     }
@@ -108,6 +109,7 @@ public class BasicUserService implements UserService {
       profile = new BinaryContent(profileRequest.fileName(), (long) profileRequest.bytes().length,
           profileRequest.contentType());
       profile = binaryContentRepository.save(profile);
+
       eventPublisher.publishEvent(
           new BinaryContentCreatedEvent(profile.getId(), profileRequest.bytes()));
     }
