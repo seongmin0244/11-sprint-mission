@@ -21,6 +21,18 @@ spring:
     resources:
       static-locations: classpath:/static/dist6/
 
+  cache:
+    type: caffeine
+    cache-names:
+      - channels
+      - notifications
+      - users
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+
 #  # admin 설정 (비활성화)
 #  boot:
 #    admin:
@@ -62,7 +74,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers # 노출할 엔드포인트 목록
+        include: health, info, metrics, loggers, caches # 노출할 엔드포인트 목록
   observations:
     annotations:
       enabled: true # @Timed 어노테이션 활성화
