@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -17,6 +18,7 @@ public class BinaryContentEventListener {
   private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentService binaryContentService;
 
+  @Async("eventTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(BinaryContentCreatedEvent event) {
     log.info("이벤트 수신: S3 업로드 시작 - id: {}", event.id());
