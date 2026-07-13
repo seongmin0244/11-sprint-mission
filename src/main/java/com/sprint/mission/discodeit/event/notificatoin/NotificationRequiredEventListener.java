@@ -28,9 +28,8 @@ public class NotificationRequiredEventListener {
     String title = String.format("%s (#%s)", event.authorName(), event.channelName());
     String content = event.content();
 
-    targetStatuses.forEach(rs -> {
-      notificationService.createNotification(rs.getUser().getId(), title, content);
-    });
+    targetStatuses.forEach(
+        rs -> notificationService.createNotification(rs.getUser().getId(), title, content));
     log.info("메시지 알림 생성 완료 - 발송 건수: {}", targetStatuses.size());
   }
 

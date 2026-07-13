@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -77,15 +79,23 @@ public class BasicReadStatusService implements ReadStatusService {
         .toList();
   }
 
-  // 채팅방 읽음
   @Override
   @Transactional
   public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest dto) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
 
-    readStatus.updateLastReadAt(Instant.now());
-    // TODO: 알림 키고 끄는 기능 생성 시 readStatus.updateNotificationEnabled(true); 설정
+    if (dto.newLastReadAt() != null) {
+      readStatus.updateLastReadAt(dto.newLastReadAt());
+    } else {
+      readStatus.updateLastReadAt(Instant.now());
+    }
+
+    if (dto.notificationEnabled() != null) {
+      readStatus.updateNotificationEnabled(dto.notificationEnabled());
+      log.info("알림 설정 변경 완료 - userId: {}, channelId: {}, 알림 켜짐: {}", readStatus.getUser().getId(),
+          readStatus.getChannel().getId(), dto.notificationEnabled());
+    }
 
     return readStatusMapper.toDto(readStatus);
   }
