@@ -16,6 +16,8 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +40,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(cacheNames = "users", allEntries = true)
   public UserDto create(UserCreateRequest userDto,
       Optional<BinaryContentCreateRequest> binaryContentDto) {
     log.debug("create 시작 - 입력값: {}, {}", userDto, binaryContentDto);
@@ -69,6 +72,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(cacheNames = "users")
   public List<UserDto> findAll() {
     return userRepository.findAllWithProfile().stream()
         .map(userMapper::toDto)
@@ -86,6 +90,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   @PreAuthorize("principal.userDto.id == #userId")
+  @CacheEvict(cacheNames = "users", allEntries = true)
   public UserDto update(UUID userId, UserUpdateRequest userDto,
       Optional<BinaryContentCreateRequest> binaryContentDto) {
     log.debug("update 시작 - 입력값: {}, {}", userDto, binaryContentDto);
@@ -124,6 +129,7 @@ public class BasicUserService implements UserService {
   @Override
   @Transactional
   @PreAuthorize("principal.userDto.id == #userId")
+  @CacheEvict(cacheNames = "users", allEntries = true)
   public void delete(UUID userId) {
     log.debug("delete 시작 - 입력값: {}", userId);
     User user = userRepository.findById(userId)

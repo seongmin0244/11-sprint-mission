@@ -15,6 +15,8 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public ChannelDto createPublicChannel(PublicChannelCreateRequest dto) {
     log.debug("createPublicChannel 시작 - 입력값: {}", dto);
     Channel channel = new Channel(dto.name(), dto.description(), ChannelType.PUBLIC);
@@ -48,6 +51,8 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
+  // TODO: 프라이빗 채널 생성으로 모두의 캐시를 날리기는 아까운 것 같음 -> 추후 CacheManager 클래스를 생성하여 참여한 participants의 캐시만 날릴 것
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public ChannelDto createPrivateChannel(PrivateChannelCreateRequest dto) {
     log.debug("createPrivateChannel 시작 - 입력값: {}", dto);
     if (dto.participantIds() == null || dto.participantIds().size() < 2) {
@@ -74,6 +79,7 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @Cacheable(cacheNames = "channels", key = "#userId")
   @Override
   public List<ChannelDto> findAllByUserId(UUID userId) {
     // 한 유저가 속한 PRIVATE 채팅방과, 공개방인 PUBLIC 채팅방 목록을 보여주는 메서드
@@ -102,6 +108,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public ChannelDto update(UUID id, PublicChannelUpdateRequest dto) {
     log.debug("update 시작 - 입력값: {}", dto);
     Channel channel = channelRepository.findById(id)
@@ -118,6 +125,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public void delete(UUID id) {
     log.debug("delete 시작 - 입력값: {}", id);
 

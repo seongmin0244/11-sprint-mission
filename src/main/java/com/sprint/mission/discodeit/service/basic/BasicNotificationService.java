@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ public class BasicNotificationService implements NotificationService {
 
   private final NotificationRepository notificationRepository;
 
+  @Cacheable(cacheNames = "notifications", key = "#receiverId")
   @Override
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
     log.debug("알림 목록 조회 - receiverId: {}", receiverId);
@@ -33,6 +36,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Override
   @Transactional
+  @CacheEvict(cacheNames = "notifications", key = "#receiverId")
   public void delete(UUID notificationId, UUID receiverId) {
     log.debug("알림 삭제 시도 - notificationId: {}, 요청 userId: {}", notificationId, receiverId);
     Notification notification = notificationRepository.findById(notificationId)
@@ -49,6 +53,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @CacheEvict(cacheNames = "notifications", key = "#receiverId")
   public void createNotification(UUID receiverId, String title, String content) {
     Notification notification = new Notification(receiverId, title, content);
     notificationRepository.save(notification);
