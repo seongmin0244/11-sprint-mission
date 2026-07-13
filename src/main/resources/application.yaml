@@ -63,6 +63,9 @@ management:
     web:
       exposure:
         include: health, info, metrics, loggers # 노출할 엔드포인트 목록
+  observations:
+    annotations:
+      enabled: true # @Timed 어노테이션 활성화
 
 # /actuator/info 노출 데이터 명세
 info:

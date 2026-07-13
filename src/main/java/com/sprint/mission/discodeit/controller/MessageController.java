@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,6 +39,7 @@ public class MessageController {
       @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음"),
       @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨")
   })
+  @Timed("message.create.async")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
       @Valid
