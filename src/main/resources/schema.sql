@@ -9,6 +9,15 @@ CREATE TABLE IF NOT EXISTS binary_contents
     status       varchar(20)              NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS notifications
+(
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+    receiver_id UUID                     NOT NULL,
+    title       VARCHAR(255)             NOT NULL,
+    content     TEXT                     NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS channels
 (
     id          UUID PRIMARY KEY,
