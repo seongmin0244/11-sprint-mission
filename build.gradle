@@ -64,6 +64,9 @@ dependencies {
     // Spring Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // Redis Cache
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // Code Generation (코드 자동 생성)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
