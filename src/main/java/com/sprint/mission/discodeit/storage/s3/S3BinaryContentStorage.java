@@ -120,12 +120,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Recover
   public UUID recover(SdkException e, UUID id, byte[] bytes) {
-    String requestId = MDC.get("requestId");
+    String rawRequestId = MDC.get("requestId");
+    String requestId = (rawRequestId != null) ? rawRequestId : "NO_REQUEST_ID";
 
     eventPublisher.publishEvent(new S3UploadFailedEvent(requestId, id, e.getMessage()));
 
     log.error("S3 업로드 최종 실패. 관리자 통지 및 이벤트 발행 완료 - requestId : {}", requestId);
 
-    return id;
+    throw new RuntimeException(
+        String.format("S3 업로드 최종 실패 - requestId: %s, binaryContentId: %s", requestId, id), e);
   }
 }
