@@ -1,6 +1,8 @@
-package com.sprint.mission.discodeit.event.notification;
+package com.sprint.mission.discodeit.event.listener;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.event.dto.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.List;

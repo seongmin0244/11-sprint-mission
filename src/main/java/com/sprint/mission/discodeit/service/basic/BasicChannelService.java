@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.event.cache.PrivateChannelCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.InsufficientParticipantsException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateDeniedException;

@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.event.websocket;
+package com.sprint.mission.discodeit.event.listener;
 
 import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.event.notification.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.MessageCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

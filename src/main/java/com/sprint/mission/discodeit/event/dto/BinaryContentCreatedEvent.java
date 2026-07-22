@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.event.binarycontent;
+package com.sprint.mission.discodeit.event.dto;
 
 import java.util.UUID;
 

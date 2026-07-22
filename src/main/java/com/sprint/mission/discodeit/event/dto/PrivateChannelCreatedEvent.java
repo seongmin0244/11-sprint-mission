@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.event.cache;
+package com.sprint.mission.discodeit.event.dto;
 
 import java.util.List;
 import java.util.UUID;
