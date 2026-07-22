@@ -69,9 +69,8 @@ public class SseService {
     UUID eventId = sseMessageRepository.save(new SseMessage(null, eventName, data));
     log.debug("SSE 브로드캐스트 전송 - eventName: {}", eventName);
 
-    emitterRepository.findAll().forEach((receiverId, emitters) -> {
-      emitters.forEach(emitter -> sendToClient(emitter, receiverId, eventId, eventName, data));
-    });
+    emitterRepository.findAll().forEach((receiverId, emitters) -> emitters.forEach(
+        emitter -> sendToClient(emitter, receiverId, eventId, eventName, data)));
   }
 
   private void sendToClient(SseEmitter emitter, UUID receiverId, Object eventId, String eventName,
@@ -95,11 +94,9 @@ public class SseService {
   @Scheduled(fixedDelay = 1000 * 60 * 30)
   public void cleanUp() {
     log.info("SSE 스케줄러 - 죽은 연결 청소 시작");
-    emitterRepository.findAll().forEach((receiverId, emitters) -> {
-      emitters.forEach(emitter ->
-          ping(emitter, receiverId)
-      );
-    });
+    emitterRepository.findAll().forEach((receiverId, emitters) -> emitters.forEach(emitter ->
+        ping(emitter, receiverId)
+    ));
   }
 
   private boolean ping(SseEmitter emitter, UUID receiverId) {
