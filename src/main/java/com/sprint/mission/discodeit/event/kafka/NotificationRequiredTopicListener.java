@@ -34,13 +34,14 @@ public class NotificationRequiredTopicListener {
     try {
       MessageCreatedEvent event = objectMapper.readValue(kafkaEvent, MessageCreatedEvent.class);
 
-      log.info("Kafka 메시지 알림 이벤트 수신 - channelId: {}", event.channelId());
+      log.info("Kafka 메시지 알림 이벤트 수신 - channelId: {}", event.data().channelId());
 
       List<ReadStatus> targetStatuses = readStatusRepository.findNotificationEnabledTargets(
-          event.channelId(), event.authorId());
+          event.data().channelId(), event.data().author().id());
 
-      String title = String.format("%s (#%s)", event.authorName(), event.channelName());
-      String content = event.content();
+      String title = String.format("%s (#%s)", event.data().author().username(),
+          event.channelName());
+      String content = event.data().content();
 
       targetStatuses.forEach(
           rs -> notificationService.createNotification(rs.getUser().getId(), title, content));

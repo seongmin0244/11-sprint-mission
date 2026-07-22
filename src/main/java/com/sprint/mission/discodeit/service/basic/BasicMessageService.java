@@ -76,11 +76,13 @@ public class BasicMessageService implements MessageService {
     Message message = new Message(author, channel, dto.content(), attachments);
     messageRepository.save(message);
 
-    eventPublisher.publishEvent(new MessageCreatedEvent(channel.getId(), author.getId(),
-        author.getUsername(), channel.getName(), message.getContent()));
+    MessageDto messageDto = messageMapper.toDto(message);
+
+    eventPublisher.publishEvent(
+        new MessageCreatedEvent(messageDto, Instant.now(), channel.getName()));
     log.info("메시지 생성 완료 - messageId: {}, 첨부파일 수: {}", message.getId(), attachments.size());
 
-    return messageMapper.toDto(message);
+    return messageDto;
   }
 
   // 채팅방에 들어가서 위로 스크롤하면 예전 메시지가 계속 뜨는 로직
