@@ -5,6 +5,9 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.event.dto.ChannelCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.event.dto.ChannelUpdatedEvent;
 import com.sprint.mission.discodeit.event.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.InsufficientParticipantsException;
@@ -48,8 +51,11 @@ public class BasicChannelService implements ChannelService {
     Channel channel = new Channel(dto.name(), dto.description(), ChannelType.PUBLIC);
     channel = channelRepository.save(channel);
 
+    ChannelDto channelDto = channelMapper.toDto(channel);
+    eventPublisher.publishEvent(new ChannelCreatedEvent(channelDto, Instant.now()));
+
     log.info("퍼블릭 채널 생성 완료 - channelId: {}, channelName: {}", channel.getId(), channel.getName());
-    return channelMapper.toDto(channel);
+    return channelDto;
   }
 
   @Override
@@ -121,8 +127,11 @@ public class BasicChannelService implements ChannelService {
     }
     channel.update(dto.newName(), dto.newDescription());
 
+    ChannelDto channelDto = channelMapper.toDto(channel);
+    eventPublisher.publishEvent(new ChannelUpdatedEvent(channelDto, Instant.now()));
+
     log.info("채널 수정 완료 - channelId: {}", channel.getId());
-    return channelMapper.toDto(channel);
+    return channelDto;
   }
 
   @Override
@@ -136,6 +145,10 @@ public class BasicChannelService implements ChannelService {
         .orElseThrow(() -> new ChannelNotFoundException(id));
 
     channelRepository.delete(channel);
+
+    ChannelDto channelDto = channelMapper.toDto(channel);
+    eventPublisher.publishEvent(new ChannelDeletedEvent(channelDto, Instant.now()));
+
     log.info("채널 삭제 완료 - channelId: {}", channel.getId());
   }
 }

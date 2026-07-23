@@ -70,7 +70,7 @@ public class BasicMessageService implements MessageService {
 
     for (int i = 0; i < attachments.size(); i++) {
       eventPublisher.publishEvent(new BinaryContentCreatedEvent(attachments.get(i).getId(),
-          binaryContentDto.get(i).bytes()));
+          binaryContentDto.get(i).bytes(), author.getId()));
     }
 
     Message message = new Message(author, channel, dto.content(), attachments);
