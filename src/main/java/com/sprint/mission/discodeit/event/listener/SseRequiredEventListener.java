@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.event.dto.ChannelCreatedEvent;
 import com.sprint.mission.discodeit.event.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.event.dto.ChannelUpdatedEvent;
 import com.sprint.mission.discodeit.event.dto.NotificationCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.UserCreatedEvent;
+import com.sprint.mission.discodeit.event.dto.UserDeletedEvent;
 import com.sprint.mission.discodeit.event.dto.UserUpdatedEvent;
 import com.sprint.mission.discodeit.service.SseService;
 import java.util.List;
@@ -65,8 +67,22 @@ public class SseRequiredEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void on(UserCreatedEvent event) {
+    log.debug("SSE 리스너 유저 상태 생성 브로드캐스트 - userId: {}", event.data().id());
+
+    sseService.broadcast("users.updated", event.data());
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(UserUpdatedEvent event) {
-    log.debug("SSE 리스너 유저 상태 갱신 브로드캐스트 - userId: {}", event.data().id());
+    log.debug("SSE 리스너 유저 상태 수정 브로드캐스트 - userId: {}", event.data().id());
+
+    sseService.broadcast("users.updated", event.data());
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void on(UserDeletedEvent event) {
+    log.debug("SSE 리스너 유저 상태 삭제 브로드캐스트 - userId: {}", event.data().id());
 
     sseService.broadcast("users.updated", event.data());
   }
